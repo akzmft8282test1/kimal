@@ -276,12 +276,12 @@
     </div>
 
     <div class="download-zone">
-        <button class="btn-dl" onclick="downloadExamText(1)">1회 문제지 다운로드</button>
-        <button class="btn-dl ans-btn" onclick="downloadAnsText(1)">1회 답지 다운로드</button>
-        <button class="btn-dl" onclick="downloadExamText(2)">2회 문제지 다운로드</button>
-        <button class="btn-dl ans-btn" onclick="downloadAnsText(2)">2회 답지 다운로드</button>
-        <button class="btn-dl" onclick="downloadExamText(3)">3회 문제지 다운로드</button>
-        <button class="btn-dl ans-btn" onclick="downloadAnsText(3)">3회 답지 다운로드</button>
+        <button class="btn-dl" onclick="downloadPDF('/download/question?exam=1', '정보_모의고사_1회_문제지.pdf')">1회 문제지 PDF 다운로드</button>
+        <button class="btn-dl ans-btn" onclick="downloadPDF('/download/answer?exam=1', '정보_모의고사_1회_정답지.pdf')">1회 답지 PDF 다운로드</button>
+        <button class="btn-dl" onclick="downloadPDF('/download/question?exam=2', '정보_모의고사_2회_문제지.pdf')">2회 문제지 PDF 다운로드</button>
+        <button class="btn-dl ans-btn" onclick="downloadPDF('/download/answer?exam=2', '정보_모의고사_2회_정답지.pdf')">2회 답지 PDF 다운로드</button>
+        <button class="btn-dl" onclick="downloadPDF('/download/question?exam=3', '정보_모의고사_3회_문제지.pdf')">3회 문제지 PDF 다운로드</button>
+        <button class="btn-dl ans-btn" onclick="downloadPDF('/download/answer?exam=3', '정보_모의고사_3회_정답지.pdf')">3회 답지 PDF 다운로드</button>
     </div>
 
     <div id="exam1" class="exam-page active">
@@ -1202,63 +1202,30 @@
     //       텍스트 기반 다운로드 파일 빌더 모듈
     // ==========================================
     
-    function downloadExamText(examNum) {
-        let output = `==================================================\n`;
-        output += `    2026학년도 1학기 정보 기말고사 모의평가 제 ${examNum}회 문제지\n`;
-        output += `==================================================\n\n`;
-        
-        const form = document.getElementById(`form${examNum}`);
-        
-        // 객관식 텍스트 가공
-        output += `[PART 1. 선택형 문항 18문제]\n\n`;
-        for(let i=1; i<=18; i++) {
-            const qText = form.querySelector(`[data-q="${i}"] .q-text`).innerText;
-            output += `${qText}\n`;
-            const labels = form.querySelectorAll(`[data-q="${i}"] .options-list li`);
-            labels.forEach(li => {
-                output += `  ${li.innerText}\n`;
+    // [수정] 2. 기존 txt 함수를 대체하는 PDF 서버 다운로드 함수
+    function downloadPDF(url, filename) {
+        // 다운로드 중 버튼 상태 알림
+        const activeBtn = event.currentTarget;
+        const originalText = activeBtn.innerText;
+        activeBtn.innerText = "PDF 생성 중...";
+        activeBtn.disabled = true;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('PDF 생성 실패');
+                return response.blob();
+            })
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+            })
+            .catch(err => alert('오류가 발생했습니다: ' + err.message))
+            .finally(() => {
+                activeBtn.innerText = originalText;
+                activeBtn.disabled = false;
             });
-            output += `\n`;
-        }
-
-        // 주관식 텍스트 가공
-        output += `\n[PART 2. 서술형 문항 4문제]\n\n`;
-        for(let j=1; j<=4; j++) {
-            const qText = form.querySelector(`[data-q="${j+18}"] .q-text`).innerText;
-            const guide = form.querySelector(`[data-q="${j+18}"] .keyword-guide`).innerText;
-            output += `${qText}\n  (${guide})\n\n`;
-        }
-
-        const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `정보_2026학년도_모의고사_제${examNum}회_문제지.txt`;
-        link.click();
-    }
-
-    function downloadAnsText(examNum) {
-        let output = `==================================================\n`;
-        output += `    2026학년도 1학기 정보 기말고사 모의평가 제 ${examNum}회 정답지 및 정답 기준\n`;
-        output += `==================================================\n\n`;
-        
-        output += `[선택형 정답 리스트]\n`;
-        for(let i=1; i<=18; i++) {
-            const form = document.getElementById(`form${examNum}`);
-            const feedback = form.querySelector(`[data-q="${i}"] .wrong-feedback`).innerText;
-            output += `▶ ${i}번 문제 ${feedback.replace('❌ 오답 ', '')}\n`;
-        }
-
-        output += `\n\n[서술형 필수 채점 키워드 리스트 (5개 이상 수반 조건)]\n`;
-        const kwList = keywords[examNum];
-        for(let j=1; j<=4; j++) {
-            output += `▶ 서술형 ${j}번 채점 기준단어: ${kwList[j-1].join(', ')}\n`;
-        }
-
-        const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `정보_2026학년도_모의고사_제${examNum}회_정답지.txt`;
-        link.click();
     }
 </script>
 
