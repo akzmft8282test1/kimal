@@ -76,12 +76,22 @@ const pdfStyle = `
         padding-left: 10px;
     }
     .question-block {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        page-break-inside: avoid;
     }
     .question-text {
         font-size: 14px;
         font-weight: 500;
         margin-bottom: 8px;
+    }
+    .options {
+        list-style: none;
+        padding-left: 10px;
+        margin: 8px 0;
+        font-size: 13px;
+    }
+    .options li {
+        margin-bottom: 4px;
     }
     .blank {
         display: inline-block;
@@ -93,6 +103,15 @@ const pdfStyle = `
     .answer-text {
         color: #E53E3E;
         font-weight: 700;
+    }
+    .desc-answer-box {
+        border: 1px solid #CBD5E0;
+        background-color: #FAFAFA;
+        min-height: 60px;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 4px;
+        font-size: 13px;
     }
     table {
         width: 100%;
@@ -135,111 +154,117 @@ const pdfOptions = {
     margin: { top: '25px', bottom: '25px', left: '25px', right: '25px' } 
 };
 
-// 📄 문제지 PDF 다운로드 API (/download/question)
+// 📄 [수정] 모의고사 회차별 문제지 PDF 동적 다운로드 API
 app.get('/download/question', (req, res) => {
+    // 💡 URL 파라미터(?exam=1)에서 회차 정보 추출 (기본값 1회)
+    const examNum = req.query.exam || '1'; 
+
     const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head><meta charset="UTF-8">${pdfStyle}</head>
     <body>
         <div class="header">
-            <h1 class="title">📝 2학년 정보 1학기 1차 정기시험 대비 복습 활동지</h1>
-            <p class="subtitle">교과목: 정보 | 대상: 2학년 | 작성자: 전원기</p>
+            <h1 class="title">📝 2학년 정보 1학기 기말고사비 모의평가 (제 ${examNum}회 문제지)</h1>
+            <p class="subtitle">교과목: 정보 | 대상: 2학년 | 구조화 및 자동 출제 시스템</p>
         </div>
         <div class="info-box">
             <strong>학년/반/번호:</strong> 2학년 _____반 _____번 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>이름:</strong> _________________
         </div>
-        <div class="section-title">Part 1. 컴퓨팅 시스템의 구성과 동작</div>
+        
+        <div class="section-title">I. 선택형 문항</div>
+        
         <div class="question-block">
-            <div class="question-text"><strong>[01] 핵심 개념 빈칸 채우기</strong></div>
-            <p>1. (<span class="blank"></span>) : 우리가 수행하고자 하는 일을 컴퓨터를 이용하여 처리하는 과정이다.</p>
-            <p>2. (<span class="blank"></span>) : 컴퓨팅 작업을 수행하기 위한 하드웨어와 소프트웨어의 모음이다.</p>
-            <p>3. (<span class="blank"></span>) : 눈에 보이거나 손으로 직접 만질 수 있는 물리적인 전자 장치이다.</p>
-            <p>4. (<span class="blank"></span>) : 하드웨어를 활용하여 정보를 처리하고, 특정 작업을 수행하는 프로그램의 모음이다.</p>
+            <div class="question-text"><strong>1. 다음 중 컴퓨팅 시스템의 소프트웨어 요소 중 성격이 다른 하나를 고르시오.</strong></div>
+            <ul class="options">
+                <li>① 리눅스 (Linux) &nbsp;&nbsp;&nbsp; ② 웹 브라우저 &nbsp;&nbsp;&nbsp; ③ 윈도우 11 (Windows 11) &nbsp;&nbsp;&nbsp; ④ 안드로이드 (Android)</li>
+            </ul>
         </div>
+
         <div class="question-block">
-            <div class="question-text"><strong>[02] 하드웨어 종류 분류하기</strong></div>
-            <div class="box-container">
-                <strong>[ 보기 ]</strong><br>
-                키보드 / 모니터 / CPU / RAM / SSD / 마우스 / 스피커 / 와이파이 / 마이크 / 프린터 / 터치스크린 / GPU / 블루투스 / HDD / 카메라
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">입력 장치</th>
-                        <th style="width: 20%;">처리 장치</th>
-                        <th style="width: 20%;">기억 장치</th>
-                        <th style="width: 20%;">출력 장치</th>
-                        <th style="width: 20%;">통신 장치</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td style="height:50px;"></td><td></td><td></td><td></td><td></td></tr>
-                </tbody>
-            </table>
+            <div class="question-text"><strong>2. 데이터 전송 시 발생할 수 있는 보안 위협 중, 전송 중인 데이터를 불법으로 가로채어 엿보는 행위를 뜻하는 단어를 고르시오.</strong></div>
+            <ul class="options">
+                <li>① 가로막기 (Interruption) &nbsp;&nbsp;&nbsp; ② 변조 (Modification) &nbsp;&nbsp;&nbsp; ③ 도청/가로채기 (Interception) &nbsp;&nbsp;&nbsp; ④ 위조 (Fabrication)</li>
+            </ul>
         </div>
-        <div class="footer">2학년 정보 정기시험 복습 활동지 - 문제지</div>
+
+        <div class="section-title">II. 서술형 문항</div>
+
+        <div class="question-block">
+            <div class="question-text"><strong>3. 분산 서비스 거부 공격(DDoS)의 발생 원리와 이를 일상에서 예방하기 위한 시스템 보안 수칙 1가지를 서술해 보세요.</strong></div>
+            <div class="desc-answer-box" style="height: 100px; background: #fff;"></div>
+        </div>
+
+        <div class="footer">2학년 정보 기말대비 모의평가 제 ${examNum}회 - 문제지</div>
     </body>
     </html>
     `;
 
     pdf.generatePdf({ content: htmlContent }, pdfOptions).then(pdfBuffer => {
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=Question_Sheet.pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Information_Exam_Moui_Ch_0${examNum}_Question.pdf`);
         res.send(pdfBuffer);
     }).catch(err => res.status(500).send("오류 발생: " + err.message));
 });
 
-// ✨ 정답지 PDF 다운로드 API (/download/answer)
+// ✨ [수정] 모의고사 회차별 정답지 PDF 동적 다운로드 API
 app.get('/download/answer', (req, res) => {
+    // 💡 URL 파라미터(?exam=1)에서 회차 정보 추출
+    const examNum = req.query.exam || '1'; 
+
     const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head><meta charset="UTF-8">${pdfStyle}</head>
     <body>
         <div class="header" style="border-bottom-color: #E53E3E;">
-            <h1 class="title" style="color: #E53E3E;">✨ 2학년 정보 1학기 1차 정기시험 대비 복습 활동지 (정답지)</h1>
-            <p class="subtitle">교과목: 정보 | 대상: 2학년 | 작성자: 전원기</p>
+            <h1 class="title" style="color: #E53E3E;">✨ 2학년 정보 1학기 기말고사대비 모의평가 (제 ${examNum}회 정답지)</h1>
+            <p class="subtitle">교과목: 정보 | 대상: 2학년 | 정답 및 서술형 평가 채점 기준안</p>
         </div>
-        <div class="section-title" style="color: #E53E3E; border-left-color: #E53E3E;">Part 1. 컴퓨팅 시스템의 구성과 동작</div>
+        
+        <div class="section-title" style="color: #E53E3E; border-left-color: #E53E3E;">I. 선택형 정답 리스트</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">문항 번호</th>
+                    <th style="width: 40%;">정답</th>
+                    <th style="width: 40%;">비고 / 해설</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="answer-text">② 웹 브라우저</td>
+                    <td>나머지는 모두 하드웨어를 제어하는 운영체제(OS) 응용군입니다.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="answer-text">③ 도청/가로채기</td>
+                    <td>기밀성을 해치는 대표적인 수동적 공격 형태입니다.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title" style="color: #E53E3E; border-left-color: #E53E3E;">II. 서술형 예시 답안 및 핵심 키워드</div>
+
         <div class="question-block">
-            <div class="question-text"><strong>[01] 핵심 개념 빈칸 채우기</strong></div>
-            <p>1. (<span class="blank answer-text">컴퓨팅</span>) : 우리가 수행하고자 하는 일을 컴퓨터를 이용하여 처리하는 과정이다.</p>
-            <p>2. (<span class="blank answer-text">컴퓨팅 시스템</span>) : 컴퓨팅 작업을 수행하기 위한 하드웨어와 소프트웨어의 모음이다.</p>
-            <p>3. (<span class="blank answer-text">하드웨어</span>) : 눈에 보이거나 손으로 직접 만질 수 있는 물리적인 전자 장치이다.</p>
-            <p>4. (<span class="blank answer-text">소프트웨어</span>) : 하드웨어를 활용하여 정보를 처리하고, 특정 작업을 수행하는 프로그램의 모음이다.</p>
+            <div class="question-text"><strong>3. 분산 서비스 거부 공격(DDoS) 예방책 및 원리</strong></div>
+            <div class="desc-answer-box">
+                <span class="answer-text">[모범 답안]</span><br>
+                수많은 감염된 좀비 PC들을 원격 조종하여 특정 사이트에 동시 접속을 유도해 시스템 과부하를 일으키는 원리이다.<br>
+                이를 예방하기 위해 일상에서 <strong>백신 프로그램을 설치하고 최신 상태로 실시간 감시 기능을 활성화</strong>해야 한다.
+            </div>
         </div>
-        <div class="question-block">
-            <div class="question-text"><strong>[02] 하드웨어 종류 분류하기</strong></div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 20%;">입력 장치</th>
-                        <th style="width: 20%;">처리 장치</th>
-                        <th style="width: 20%;">기억 장치</th>
-                        <th style="width: 20%;">출력 장치</th>
-                        <th style="width: 20%;">통신 장치</th>
-                    </tr>
-                </thead>
-                <tbody class="answer-text">
-                    <tr>
-                        <td>키보드, 마우스,<br>마이크, 카메라,<br>터치스크린</td>
-                        <td>CPU,<br>GPU</td>
-                        <td>RAM,<br>SSD,<br>HDD</td>
-                        <td>모니터, 스피커,<br>프린터,<br>터치스크린</td>
-                        <td>와이파이,<br>블루투스</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="footer">2학년 정보 정기시험 복습 활동지 - 정답지</div>
+
+        <div class="footer">2학년 정보 기말대비 모의평가 제 ${examNum}회 - 정답지</div>
     </body>
     </html>
     `;
 
     pdf.generatePdf({ content: htmlContent }, pdfOptions).then(pdfBuffer => {
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=Answer_Sheet.pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=Information_Exam_Moui_Ch_0${examNum}_Answer.pdf`);
         res.send(pdfBuffer);
     }).catch(err => res.status(500).send("오류 발생: " + err.message));
 });
