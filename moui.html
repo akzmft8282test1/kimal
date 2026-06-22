@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026학년도 1학기 기말고사 대비 정보 모의고사</title>
     <style>
+        /* 기본 테마 및 디바이스 최적화 */
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -21,6 +22,7 @@
             color: #333;
             margin: 0;
             padding: 10px;
+            -webkit-text-size-adjust: none;
         }
 
         .container {
@@ -38,8 +40,10 @@
             font-size: 1.8rem;
             border-bottom: 3px double var(--accent-color);
             padding-bottom: 10px;
+            margin-top: 5px;
         }
 
+        /* 탭 내비게이션 */
         .tab-menu {
             display: flex;
             justify-content: space-around;
@@ -60,6 +64,7 @@
             color: #666;
             cursor: pointer;
             border-radius: 6px;
+            transition: all 0.2s ease;
         }
 
         .tab-btn.active {
@@ -67,6 +72,7 @@
             color: #fff;
         }
 
+        /* 유틸리티 다운로드 영역 */
         .download-zone {
             display: flex;
             flex-wrap: wrap;
@@ -92,7 +98,10 @@
         }
 
         .btn-dl:hover { background: #616a6b; }
+        .btn-dl.ans-btn { background: #16a085; }
+        .btn-dl.ans-btn:hover { background: #117a65; }
 
+        /* 문제 레이아웃 */
         .section-title {
             background: var(--primary-color);
             color: white;
@@ -114,6 +123,7 @@
             margin-bottom: 12px;
         }
 
+        /* 보기 구성 */
         .options-list {
             list-style: none;
             padding: 0;
@@ -131,6 +141,12 @@
             border: 1px solid #dcdde1;
             border-radius: 6px;
             cursor: pointer;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .options-list label:hover {
+            background: #f1f2f6;
         }
 
         .options-list input[type="radio"] {
@@ -139,6 +155,7 @@
             height: 18px;
         }
 
+        /* 서술형 입력 */
         .textarea-ans {
             width: 100%;
             height: 80px;
@@ -147,6 +164,7 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 0.95rem;
+            resize: vertical;
         }
 
         .keyword-guide {
@@ -155,9 +173,7 @@
             margin-top: 4px;
         }
 
-        .wrong-feedback { color: var(--alert-color); font-weight: bold; margin-top: 8px; display: none; }
-        .correct-feedback { color: var(--success-color); font-weight: bold; margin-top: 8px; display: none; }
-
+        /* 채점 결과 스타일 */
         .action-zone {
             margin-top: 40px;
             text-align: center;
@@ -170,10 +186,20 @@
             font-size: 1.2rem;
             font-weight: bold;
             color: white;
-            background: var(--accent-color);
+            background: #95a5a6;
             border: none;
             border-radius: 8px;
+            cursor: not-allowed;
+            transition: background 0.3s;
+        }
+
+        .btn-submit.ready {
+            background: var(--accent-color);
             cursor: pointer;
+        }
+
+        .btn-submit.ready:hover {
+            background: #2980b9;
         }
 
         .score-board {
@@ -186,16 +212,43 @@
             text-align: center;
         }
 
+        .wrong-feedback {
+            color: var(--alert-color);
+            font-weight: bold;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .correct-feedback {
+            color: var(--success-color);
+            font-weight: bold;
+            margin-top: 8px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 5px; }
+            .container { padding: 12px; border-radius: 0; }
+            h1 { font-size: 1.4rem; }
+            .tab-btn { padding: 8px; font-size: 0.9rem; }
+            .q-text { font-size: 0.95rem; }
+            .options-list label { padding: 8px; font-size: 0.9rem; }
+        }
+
+        /* PDF 인쇄 및 저장 최적화 스타일 */
         @media print {
-            .tab-menu, .download-zone, .action-zone, .score-board { display: none !important; }
+            body { background: white; color: black; padding: 0; }
+            .tab-menu, .download-zone, .action-zone, .score-board, .wrong-feedback, .correct-feedback { display: none !important; }
             .container { box-shadow: none; max-width: 100%; padding: 0; }
+            .q-box { page-break-inside: avoid; }
+            .textarea-ans { border: 1px solid #000; height: 120px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>1학기 기말고사 정보 모의고사</h1>
+    <h1 id="exam-title">1학기 기말고사 정보 모의고사</h1>
     
     <div class="tab-menu">
         <button class="tab-btn active" onclick="switchTab(1)">제 1회 모의고사</button>
@@ -204,170 +257,167 @@
     </div>
 
     <div class="download-zone">
-        <button class="btn-dl" onclick="printExam()">📄 현재 회차 문제지 인쇄 / PDF 저장</button>
+        <button class="btn-dl" onclick="printPDF('question')">현재 회차 문제지 PDF 저장/인쇄</button>
+        <button class="btn-dl ans-btn" onclick="printPDF('answer')">현재 회차 정답 확인 후 인쇄</button>
     </div>
 
-    <form id="exam-form">
+    <form id="exam-form" oninput="checkFormCompletion()">
         <div id="choice-section"></div>
         <div id="essay-section"></div>
         
         <div class="action-zone">
-            <button type="button" class="btn-submit" onclick="gradeExam()">정답 및 키워드 채점하기</button>
+            <button type="button" id="btn-submit" class="btn-submit" onclick="gradeExam()" disabled>모든 문항을 입력해 주세요</button>
         </div>
     </form>
-
+    
     <div id="score-board" class="score-board"></div>
 </div>
 
 <script>
-    // 임시 내부 JSON 데이터 저장소 (추후 외부 fetch 데이터로 쉽게 대체 가능)
+    // 회차별 JSON 데이터 구조 (1회 예시 집중 구현, 2/3회 확장 가능)
     const examData = {
-        "1": {
-            "choice": [
-                {
-                    "id": 1,
-                    "type": "선택형",
-                    "question": "1. 다음 중 우리가 처리하고자 하는 목적 과제를 컴퓨터를 활용하여 일련의 데이터 처리 및 가공 과정을 거치는 개념을 가장 적절하게 정의한 단어는 무엇인가?",
-                    "options": ["① 피지컬 시스템", "② 알고리즘 설계", "③ 컴퓨팅", "④ 소프트웨어 가속화"],
-                    "answer": "3",
-                    "feedback": "정답: ③ 컴퓨팅"
-                },
-                {
-                    "id": 2,
-                    "type": "선택형",
-                    "question": "2. 하드웨어 장치 중 성격이 다른 하나를 고르시오.",
-                    "options": ["① 키보드", "② 마우스", "③ 스피커", "④ 터치스크린"],
-                    "answer": "3",
-                    "feedback": "정답: ③ 스피커 - 출력장치이며 나머지는 입력 기능 포함"
-                }
-            ],
-            "essay": [
-                {
-                    "id": 19,
-                    "type": "서술형",
-                    "question": "서술형 1. 시스템 소프트웨어의 핵심인 '운영체제(OS)'가 수행하는 실질적인 주요 관리 자원 및 핵심 기능에 대하여 상세히 설명하시오.",
-                    "keywords": ["하드웨어", "제어", "사용자 인터페이스", "시스템 자원", "효율적 관리"],
-                    "feedback": "필수 단어: 하드웨어, 제어, 사용자 인터페이스, 시스템 자원, 효율적 관리"
-                }
-            ]
-        },
-        "2": { "choice": [], "essay": [] },
-        "3": { "choice": [], "essay": [] }
+        1: [
+            // 선택형 문항들
+            {
+                id: 1,
+                type: "choice",
+                question: "다음 중 우리가 처리하고자 하는 목적 과제를 컴퓨터를 활용하여 일련의 데이터 처리 및 가공 과정을 거치는 개념을 가장 적절하게 정의한 단어는 무엇인가?",
+                options: ["피지컬 시스템", "알고리즘 설계", "컴퓨팅", "소프트웨어 가속화"],
+                answer: 3,
+                feedback: "컴퓨팅"
+            },
+            {
+                id: 2,
+                type: "choice",
+                question: "하드웨어 장치 중 성격이 다른 하나를 고르시오.",
+                options: ["키보드", "마우스", "스피커", "터치스크린"],
+                answer: 3,
+                feedback: "스피커 - 출력장치이며 나머지는 입력 기능 포함"
+            },
+            {
+                id: 3,
+                type: "choice",
+                question: "다음 하드웨어 종류와 역할의 연결 중 잘못된 것은?",
+                options: [
+                    "통신 장치 - 다른 컴퓨팅 시스템과 데이터를 송수신한다.",
+                    "처리 장치 - 데이터와 응용 프로그램을 영구 저장한다.",
+                    "출력 장치 - 처리된 연산 결과를 사용자에게 시각/청각 등으로 전달한다.",
+                    "입력 장치 - 외부 환경 데이터나 명령을 시스템에 전달한다."
+                ],
+                answer: 2,
+                feedback: "처리 장치 - 저장 기능이 아니라 연산 및 제어가 주 임무입니다."
+            },
+            {
+                id: 4,
+                type: "choice",
+                question: "다음 중 [윈도(Windows), macOS, iOS, 안드로이드]가 공통으로 속하는 소프트웨어 분류 유형은?",
+                options: ["응용 소프트웨어", "시스템 소프트웨어", "오픈소스 패키지", "셰어웨어 프로그램"],
+                answer: 2,
+                feedback: "시스템 소프트웨어"
+            },
+            // 서술형 문항들
+            {
+                id: 19,
+                type: "essay",
+                question: "서술형 1. 시스템 소프트웨어의 핵심인 '운영체제(OS)'가 수행하는 실질적인 주요 관리 자원 및 핵심 기능에 대하여 상세히 설명하시오.",
+                keywords: ["하드웨어", "제어", "사용자 인터페이스", "시스템 자원", "효율적 관리"]
+            },
+            {
+                id: 20,
+                type: "essay",
+                question: "서술형 2. 피지컬 컴퓨팅의 작동 구조를 입력, 처리, 출력 단계의 상호작용 메커니즘을 엮어서 서술하시오.",
+                keywords: ["센서", "감지", "마이크로컨트롤러", "연산", "액추에이터"]
+            }
+        ],
+        2: [
+            {
+                id: 1,
+                type: "choice",
+                question: "컴퓨팅 시스템을 지탱하는 두 가지 양대 축 중 물리적 형체가 없어 만질 수 없으나 하드웨어 작동을 전담하는 명령어의 집합체 구조는?",
+                options: ["펌웨어 칩셋", "하드웨어 섀시", "소프트웨어", "통신 매체 인터페이스"],
+                answer: 3,
+                feedback: "소프트웨어"
+            }
+        ],
+        3: [
+            {
+                id: 1,
+                type: "choice",
+                question: "제 3회 모의고사 테스트 문항입니다.",
+                options: ["보기 1", "보기 2", "보기 3", "보기 4"],
+                answer: 1,
+                feedback: "보기 1"
+            }
+        ]
     };
 
     let currentExam = 1;
 
-    // 회차 로드 및 화면 바인딩 함수
-    function loadExam(examNum) {
-        currentExam = examNum;
-        const data = examData[examNum];
-        
-        const choiceSection = document.getElementById('choice-section');
-        const essaySection = document.getElementById('essay-section');
-        document.getElementById('score-board').style.display = 'none';
-
-        // 1. 선택형 문항 빌드
-        if(data.choice.length > 0) {
-            let html = `<div class="section-title">선택형 문항</div>`;
-            data.choice.forEach(q => {
-                html += `
-                    <div class="q-box" data-q="${q.id}">
-                        <div class="q-text">${q.question}</div>
-                        <ul class="options-list">
-                            ${q.options.map((opt, idx) => `
-                                <li><label><input type="radio" name="q_${q.id}" value="${idx+1}"> ${opt}</label></li>
-                            `).join('')}
-                        </ul>
-                        <div class="wrong-feedback">❌ 오답 (${q.feedback})</div>
-                        <div class="correct-feedback">✔ 정답입니다!</div>
-                    </div>`;
-            });
-            choiceSection.innerHTML = html;
-        } else {
-            choiceSection.innerHTML = '<div class="q-box">준비 중인 회차입니다.</div>';
-        }
-
-        // 2. 서술형 문항 빌드
-        if(data.essay.length > 0) {
-            let html = `<div class="section-title">서술형 문항</div>`;
-            data.essay.forEach(q => {
-                html += `
-                    <div class="q-box" data-q="${q.id}">
-                        <div class="q-text">${q.question}</div>
-                        <textarea class="textarea-ans" id="ans_${q.id}" placeholder="답안을 입력하세요."></textarea>
-                        <div class="keyword-guide">💡 포함 필수 키워드: ${q.keywords.join(', ')}</div>
-                        <div class="wrong-feedback">❌ 키워드가 부족합니다. (${q.feedback})</div>
-                        <div class="correct-feedback">✔ 정답 기준 만족 (핵심 키워드 포함 확인)</div>
-                    </div>`;
-            });
-            essaySection.innerHTML = html;
-        } else {
-            essaySection.innerHTML = '';
-        }
-    }
+    // 초기 화면 로드
+    window.onload = function() {
+        renderExam(currentExam);
+    };
 
     // 탭 전환 기능
     function switchTab(examNum) {
+        currentExam = examNum;
         document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
-            btn.classList.toggle('active', idx + 1 === examNum);
+            btn.classList.toggle('active', idx === (examNum - 1));
         });
-        loadExam(examNum);
+        
+        // 채점 초기화 및 문제 새로 그리기
+        document.getElementById('score-board').style.display = 'none';
+        renderExam(examNum);
     }
 
-    // 채점 프로세스
-    function gradeExam() {
-        const data = examData[currentExam];
-        let score = 0;
+    // JSON 데이터를 바탕으로 HTML에 문제 렌더링
+    function renderExam(examNum) {
+        const questions = examData[examNum] || [];
+        const choiceSection = document.getElementById('choice-section');
+        const essaySection = document.getElementById('essay-section');
+        
+        choiceSection.innerHTML = '<div class="section-title">선택형 문항</div>';
+        essaySection.innerHTML = '<div class="section-title">서술형 문항</div>';
+        
+        let hasChoice = false;
+        let hasEssay = false;
 
-        // 선택형 채점
-        data.choice.forEach(q => {
-            const qBox = document.querySelector(`[data-q="${q.id}"]`);
-            const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
-            
-            if(selected && selected.value === q.answer) {
-                qBox.querySelector('.correct-feedback').style.display = 'block';
-                qBox.querySelector('.wrong-feedback').style.display = 'none';
-                score += 20; // 문항 배점 임의 계산
-            } else {
-                qBox.querySelector('.wrong-feedback').style.display = 'block';
-                qBox.querySelector('.correct-feedback').style.display = 'none';
+        questions.forEach(q => {
+            if (q.type === 'choice') {
+                hasChoice = true;
+                let optionsHtml = '';
+                q.options.forEach((opt, idx) => {
+                    optionsHtml += `
+                        <li>
+                            <label>
+                                <input type="radio" name="q_${q.id}" value="${idx + 1}"> 
+                                ⑤①②③④`[idx + 1] + ` ${opt}
+                            </label>
+                        </li>
+                    `;
+                });
+
+                choiceSection.innerHTML += `
+                    <div class="q-box" data-qid="${q.id}" data-type="choice">
+                        <div class="q-text">${q.id}. ${q.question}</div>
+                        <ul class="options-list">${optionsHtml}</ul>
+                        <div class="wrong-feedback">❌ 오답 (정답: ⑤①②③④`[q.answer] + ` ${q.feedback})</div>
+                        <div class="correct-feedback">✔ 정답입니다!</div>
+                    </div>
+                `;
+            } else if (q.type === 'essay') {
+                hasEssay = true;
+                let kwText = q.keywords.join(', ');
+                essaySection.innerHTML += `
+                    <div class="q-box" data-qid="${q.id}" data-type="essay">
+                        <div class="q-text">${q.question}</div>
+                        <textarea class="textarea-ans" placeholder="답안을 입력하세요."></textarea>
+                        <div class="keyword-guide">💡 포함 필수 키워드: ${kwText}</div>
+                        <div class="wrong-feedback">❌ 키워드가 부족합니다. (필수 단어: ${kwText})</div>
+                        <div class="correct-feedback">✔ 정답 기준 만족 (핵심 키워드 포함 확인)</div>
+                    </div>
+                `;
             }
         });
 
-        // 서술형 키워드 매칭 채점
-        data.essay.forEach(q => {
-            const qBox = document.querySelector(`[data-q="${q.id}"]`);
-            const userAns = document.getElementById(`ans_${q.id}`).value;
-            
-            let matchCount = 0;
-            q.keywords.forEach(kw => {
-                if(userAns.includes(kw)) matchCount++;
-            });
-
-            if(matchCount >= 3) { // 3개 이상 포함 시 정답 처리 조건 예시
-                qBox.querySelector('.correct-feedback').style.display = 'block';
-                qBox.querySelector('.wrong-feedback').style.display = 'none';
-                score += 20;
-            } else {
-                qBox.querySelector('.wrong-feedback').style.display = 'block';
-                qBox.querySelector('.correct-feedback').style.display = 'none';
-            }
-        });
-
-        const sb = document.getElementById('score-board');
-        sb.innerHTML = `<h3>최종 점수: ${score}점</h3>`;
-        sb.style.display = 'block';
-    }
-
-    // PDF 에러 우회 해결책: 안전한 시스템 브라우저 기본 프린팅 출력 변환
-    function printExam() {
-        window.print();
-    }
-
-    // 초기 화면 실행 시 1회차 자동 로드
-    window.onload = function() {
-        loadExam(1);
-    };
-</script>
-</body>
-</html>
+        if(!hasChoice) choiceSection.
