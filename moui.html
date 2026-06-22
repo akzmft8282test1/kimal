@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026학년도 1학기 기말고사 대비 정보 모의고사</title>
+    <title>2026학년도 1학기 기말고사 대비 정보 모의고사 (1~3회)</title>
     <style>
-        /* [기존 CSS 테마 유지] */
+        /* 기본 테마 및 디바이스 최적화 */
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -43,6 +43,7 @@
             margin-top: 5px;
         }
 
+        /* 탭 내비게이션 */
         .tab-menu {
             display: flex;
             justify-content: space-around;
@@ -71,7 +72,7 @@
             color: #fff;
         }
 
-        /* 유틸리티 다운로드 영역 유지 및 반응형 분할 */
+        /* 유틸리티 다운로드 영역 */
         .download-zone {
             display: flex;
             flex-wrap: wrap;
@@ -85,22 +86,22 @@
         .btn-dl {
             flex: 1;
             min-width: 140px;
-            padding: 12px;
-            background: #34495e;
+            padding: 8px 12px;
+            background: #7f8c8d;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 500;
             text-align: center;
-            transition: background 0.2s;
         }
 
-        .btn-dl:hover { background: #2c3e50; }
-        .btn-dl.ans-btn { background: #e67e22; }
-        .btn-dl.ans-btn:hover { background: #d35400; }
+        .btn-dl:hover { background: #616a6b; }
+        .btn-dl.ans-btn { background: #16a085; }
+        .btn-dl.ans-btn:hover { background: #117a65; }
 
+        /* 문제 레이아웃 */
         .section-title {
             background: var(--primary-color);
             color: white;
@@ -122,6 +123,7 @@
             margin-bottom: 12px;
         }
 
+        /* 보기 구성 */
         .options-list {
             list-style: none;
             padding: 0;
@@ -153,6 +155,7 @@
             height: 18px;
         }
 
+        /* 서술형 입력 */
         .textarea-ans {
             width: 100%;
             height: 80px;
@@ -170,6 +173,7 @@
             margin-top: 4px;
         }
 
+        /* 채점 결과 스타일 */
         .action-zone {
             margin-top: 40px;
             text-align: center;
@@ -230,6 +234,15 @@
             .q-text { font-size: 0.95rem; }
             .options-list label { padding: 8px; font-size: 0.9rem; }
         }
+
+        /* PDF 인쇄 및 저장 최적화 스타일 */
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .tab-menu, .download-zone, .action-zone, .score-board, .wrong-feedback, .correct-feedback { display: none !important; }
+            .container { box-shadow: none; max-width: 100%; padding: 0; }
+            .q-box { page-break-inside: avoid; }
+            .textarea-ans { border: 1px solid #000; height: 120px; }
+        }
     </style>
 </head>
 <body>
@@ -244,8 +257,9 @@
     </div>
 
     <div class="download-zone">
-        <button class="btn-dl" onclick="downloadServerPDF('question')">📄 백지 문제지 PDF 다운로드</button>
-        <button class="btn-dl ans-btn" onclick="downloadServerPDF('answer')">✨ 정답 및 해설지 PDF 다운로드</button>
+        <button class="btn-dl" onclick="downloadTxt(currentExam, 'question')">현재 회차 문제지 텍스트 다운로드</button>
+        <button class="btn-dl ans-btn" onclick="downloadTxt(currentExam, 'answer')">현재 회차 정답지 텍스트 다운로드</button>
+        <button class="btn-dl" onclick="printPDF()">현재 화면 인쇄 / PDF 저장</button>
     </div>
 
     <form id="exam-form" oninput="checkFormCompletion()">
@@ -261,7 +275,7 @@
 </div>
 
 <script>
-    // [데이터셋 유지]
+    // 전체 시험 데이터 정의 (1회, 2회, 3회 보존 및 확장)
     const examData = {
         1: [
             {
@@ -344,13 +358,15 @@
 
     function switchTab(examNum) {
         currentExam = examNum;
-        document.querySelectorAll('.tab-menu').forEach((btn, idx) => {
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
             btn.classList.toggle('active', idx === (examNum - 1));
         });
+        
         document.getElementById('score-board').style.display = 'none';
         renderExam(examNum);
     }
 
+    // 문제를 화면에 동적으로 렌더링하는 함수
     function renderExam(examNum) {
         const questions = examData[examNum] || [];
         const choiceSection = document.getElementById('choice-section');
@@ -362,7 +378,7 @@
         let hasChoice = false;
         let hasEssay = false;
 
-        const numMap = ["①", "②", "③", "④", "⑤"];
+        const numMap = ["", "①", "②", "③", "④", "⑤"];
 
         questions.forEach(q => {
             if (q.type === 'choice') {
@@ -372,8 +388,8 @@
                     optionsHtml += `
                         <li>
                             <label>
-                                <input type="radio" name="q_${q.id}" value="${idx + 1}"> 
-                                ${numMap[idx]} ${opt}
+                                <input type="radio" name="q_${q.id}" value="${idx + 1}" onchange="checkFormCompletion()"> 
+                                ${numMap[idx + 1]} ${opt}
                             </label>
                         </li>
                     `;
@@ -383,7 +399,7 @@
                     <div class="q-box" data-qid="${q.id}" data-type="choice">
                         <div class="q-text">${q.id}. ${q.question}</div>
                         <ul class="options-list">${optionsHtml}</ul>
-                        <div class="wrong-feedback">❌ 오답 (정답: ${numMap[q.answer-1]} ${q.feedback})</div>
+                        <div class="wrong-feedback">❌ 오답 (정답: ${numMap[q.answer]} | 해설: ${q.feedback})</div>
                         <div class="correct-feedback">✔ 정답입니다!</div>
                     </div>
                 `;
@@ -393,7 +409,7 @@
                 essaySection.innerHTML += `
                     <div class="q-box" data-qid="${q.id}" data-type="essay">
                         <div class="q-text">${q.id}. ${q.question}</div>
-                        <textarea class="textarea-ans" placeholder="답안을 입력하세요."></textarea>
+                        <textarea class="textarea-ans" placeholder="답안을 입력하세요." oninput="checkFormCompletion()"></textarea>
                         <div class="keyword-guide">💡 포함 필수 키워드: ${kwText}</div>
                         <div class="wrong-feedback">❌ 키워드가 부족합니다. (필수 단어: ${kwText})</div>
                         <div class="correct-feedback">✔ 정답 기준 만족 (핵심 키워드 포함 확인)</div>
@@ -401,109 +417,166 @@
                 `;
             }
         });
+
+        if(!hasChoice) choiceSection.style.display = 'none';
+        else choiceSection.style.display = 'block';
+        
+        if(!hasEssay) essaySection.style.display = 'none';
+        else essaySection.style.display = 'block';
+
         checkFormCompletion();
     }
 
+    // 양식 입력 완결성 체크 함수
     function checkFormCompletion() {
         const questions = examData[currentExam] || [];
         let allAnswered = true;
 
-        for (let q of questions) {
-            if (q.type === 'choice') {
-                const radio = document.querySelector(`input[name="q_${q.id}"]:checked`);
-                if (!radio) allAnswered = false;
-            } else if (q.type === 'essay') {
-                const text = document.querySelector(`div[data-qid="${q.id}"] textarea`).value.trim();
-                if (!text) allAnswered = false;
-            }
-        }
-
-        const btn = document.getElementById('btn-submit');
-        if (allAnswered && questions.length > 0) {
-            btn.className = "btn-submit ready";
-            btn.disabled = false;
-            btn.innerText = "제출 및 자동 채점하기";
-        } else {
-            btn.className = "btn-submit";
-            btn.disabled = true;
-            btn.innerText = "모든 문항을 입력해 주세요";
-        }
-    }
-
-    function gradeExam() {
-        // [채점 로직 실행 단]
-        const questions = examData[currentExam] || [];
-        let score = 0;
-        const perScore = Math.round(100 / questions.length);
-
         questions.forEach(q => {
-            const box = document.querySelector(`div[data-qid="${q.id}"]`);
-            const wrong = box.querySelector('.wrong-feedback');
-            const correct = box.querySelector('.correct-feedback');
-            
             if (q.type === 'choice') {
-                const sel = document.querySelector(`input[name="q_${q.id}"]:checked`).value;
-                if(parseInt(sel) === q.answer) {
-                    score += perScore;
-                    correct.style.display = 'block';
-                    wrong.style.display = 'none';
-                } else {
-                    wrong.style.display = 'block';
-                    correct.style.display = 'none';
+                const radioGroup = document.getElementsByName(`q_${q.id}`);
+                let checked = false;
+                for (let i = 0; i < radioGroup.length; i++) {
+                    if (radioGroup[i].checked) { checked = true; break; }
                 }
+                if (!checked) allAnswered = false;
             } else if (q.type === 'essay') {
-                const userAns = box.querySelector('textarea').value;
-                let matchCount = 0;
-                q.keywords.forEach(kw => {
-                    if(userAns.includes(kw)) matchCount++;
-                });
-
-                if(matchCount >= 2 || matchCount === q.keywords.length) { 
-                    score += perScore;
-                    correct.style.display = 'block';
-                    wrong.style.display = 'none';
-                } else {
-                    wrong.style.display = 'block';
-                    correct.style.display = 'none';
+                const qBox = document.querySelector(`.q-box[data-qid="${q.id}"][data-type="essay"]`);
+                if (qBox) {
+                    const textVal = qBox.querySelector('.textarea-ans').value.trim();
+                    if (textVal === "") allAnswered = false;
                 }
             }
         });
 
-        if (score > 100) score = 100;
-        const board = document.getElementById('score-board');
-        board.innerHTML = `<h3>🎉 채점 완료!</h3><p style="font-size:1.3rem; font-weight:bold; color:#16a085;">획득 점수: ${score} / 100점</p>`;
-        board.style.display = 'block';
-        board.scrollIntoView({ behavior: 'smooth' });
+        const btnSubmit = document.getElementById('btn-submit');
+        if (allAnswered && questions.length > 0) {
+            btnSubmit.className = "btn-submit ready";
+            btnSubmit.innerText = "시험지 채점 및 피드백 받기";
+            btnSubmit.disabled = false;
+        } else {
+            btnSubmit.className = "btn-submit";
+            btnSubmit.innerText = "모든 문항을 입력해 주세요";
+            btnSubmit.disabled = true;
+        }
     }
 
-    // 🌐 [추가] 브라우저 입력값 차단 및 순수 문제/정답 서버 다운로드 비동기 트리거 함수
-    function downloadServerPDF(type) {
-        const btn = event.currentTarget;
-        const originalText = btn.innerText;
-        btn.innerText = "PDF 대기 중...";
-        btn.disabled = true;
+    // 채점 프로세스 제어 함수
+    function gradeExam() {
+        const questions = examData[currentExam] || [];
+        let score_choice = 0;
+        let score_essay = 0;
+        
+        let total_choice_cnt = questions.filter(q => q.type === 'choice').length;
+        let total_essay_cnt = questions.filter(q => q.type === 'essay').length;
+        
+        let pointsPerChoice = total_choice_cnt > 0 ? (60 / total_choice_cnt) : 0;
+        let pointsPerEssay = total_essay_cnt > 0 ? (40 / total_essay_cnt) : 0;
 
-        // 사용자가 풀던 내용 전송 차단, 오직 회차 정보 파라미터만 전송
-        const url = `/download/${type}?exam=${currentExam}`;
+        questions.forEach(q => {
+            const qBox = document.querySelector(`.q-box[data-qid="${q.id}"]`);
+            if (!qBox) return;
 
-        fetch(url)
-            .then(res => {
-                if (!res.ok) throw new Error("서버 PDF 패치 에러");
-                return res.blob();
-            })
-            .then(blob => {
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = `정보_모의고사_제${currentExam}회_${type === 'question' ? '문제지' : '정답지'}.pdf`;
-                link.click();
-                btn.innerText = originalText;
-                btn.disabled = false;
-            })
-            .catch(err => {
-                alert("다운로드 중 장애가 발생했습니다: " + err.message);
-                btn.innerText = originalText;
-                btn.disabled = false;
+            const wrongFeed = qBox.querySelector('.wrong-feedback');
+            const correctFeed = qBox.querySelector('.correct-feedback');
+
+            wrongFeed.style.display = 'none';
+            correctFeed.style.display = 'none';
+
+            if (q.type === 'choice') {
+                const radioGroup = document.getElementsByName(`q_${q.id}`);
+                let selectedAns = -1;
+                for (let i = 0; i < radioGroup.length; i++) {
+                    if (radioGroup[i].checked) { selectedAns = parseInt(radioGroup[i].value); break; }
+                }
+
+                if (selectedAns === q.answer) {
+                    score_choice += pointsPerChoice;
+                    correctFeed.style.display = 'block';
+                } else {
+                    wrongFeed.style.display = 'block';
+                }
+            } else if (q.type === 'essay') {
+                const textVal = qBox.querySelector('.textarea-ans').value.trim();
+                let matchCount = 0;
+                
+                q.keywords.forEach(kw => {
+                    if (textVal.includes(kw)) { matchCount++; }
+                });
+
+                // 키워드가 전부 매칭되어야 정답 처리 (기준에 맞춰 수정 가능)
+                if (matchCount === q.keywords.length) {
+                    score_essay += pointsPerEssay;
+                    correctFeed.style.display = 'block';
+                } else {
+                    wrongFeed.style.display = 'block';
+                }
+            }
+        });
+
+        score_choice = Math.round(score_choice);
+        score_essay = Math.round(score_essay);
+        let finalScore = score_choice + score_essay;
+
+        const scoreBoard = document.getElementById('score-board');
+        scoreBoard.innerHTML = `
+            <p style="font-size:1.4rem; font-weight:bold; color:#16a085;">
+                최종 취득 점수: ${finalScore} 점 / 100점
+            </p>
+            <p>(선택형: ${score_choice}점, 서술형 키워드 매칭: ${score_essay}점)</p>
+            <p style="color:#7f8c8d; font-size:0.9rem;">틀린 문제는 위 본문에서 적색 피드백 창으로 정답 해설을 확인할 수 있습니다.</p>
+        `;
+        scoreBoard.style.display = "block";
+        scoreBoard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 텍스트 기반 다운로드 파일 빌더 모듈
+    function downloadTxt(examNum, mode) {
+        const questions = examData[examNum] || [];
+        const numMap = ["", "①", "②", "③", "④", "⑤"];
+        let output = "";
+
+        if (mode === 'question') {
+            output += `==================================================\n`;
+            output += `    2026학년도 1학기 정보 기말고사 모의평가 제 ${examNum}회 문제지\n`;
+            output += `==================================================\n\n`;
+
+            questions.forEach(q => {
+                output += `${q.id}. ${q.question}\n`;
+                if (q.type === 'choice') {
+                    q.options.forEach((opt, idx) => {
+                        output += `  ${numMap[idx + 1]} ${opt}\n`;
+                    });
+                } else if (q.type === 'essay') {
+                    output += `  [답안 작성란]\n\n\n`;
+                }
+                output += `\n`;
             });
+        } else if (mode === 'answer') {
+            output += `==================================================\n`;
+            output += `    2026학년도 1학기 정보 기말고사 모의평가 제 ${examNum}회 정답지\n`;
+            output += `==================================================\n\n`;
+
+            output += `[정답 및 해설 리스트]\n`;
+            questions.forEach(q => {
+                if (q.type === 'choice') {
+                    output += `▶ ${q.id}번 정답: ${numMap[q.answer]} | 해설: ${q.feedback}\n`;
+                } else if (q.type === 'essay') {
+                    output += `▶ ${q.id}번 필수 채점 키워드: ${q.keywords.join(', ')}\n`;
+                }
+            });
+        }
+
+        const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = mode === 'question' ? `정보_모의고사_제${examNum}회_문제지.txt` : `정보_모의고사_제${examNum}회_정답지.txt`;
+        link.click();
+    }
+
+    // 브라우저 기본 인쇄 및 PDF 저장 유틸 기능
+    function printPDF() {
+        window.print();
     }
 </script>
 </body>
