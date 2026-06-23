@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer-core'); // core 패키지 사용
-const chromium = require('chromium');        // sudo 없이 설치된 독립 바이너리
+const PDFDocument = require('pdfkit'); // 🚀 크롬 엔진 대신 안전한 pdfkit 활용
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -33,9 +32,9 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🖨 [비권한 환경 최적화] index.html 및 endex.html 전용 서버 PDF 생성 라우터
+// 🖨 [비권한 환경 최적화] 리눅스 의존성 없는 pdfkit 기반 다운로드 라우터
 // =======================================================
-app.get('/download/activity/:target', async (req, res) => {
+app.get('/download/activity/:target', (req, res) => {
     const target = req.params.target;
     let targetFileName = '';
 
@@ -53,53 +52,67 @@ app.get('/download/activity/:target', async (req, res) => {
         return res.status(404).send("해당 활동지 파일을 서버에서 찾을 수 없습니다.");
     }
 
-    let browser;
     try {
         let htmlContent = fs.readFileSync(filePath, 'utf8');
 
-        // sudo 없이 설치된 로컬 chromium 경로 확인
-        const executablePath = chromium.path;
+        // 복잡한 HTML 태그와 CSS 스타일을 깔끔하게 제거하고 순수 텍스트 추출
+        let cleanText = htmlContent
+            .replace(/<style([\s\S]*?)<\/style>/gi, '') // CSS 스타일 정의 제거
+            .replace(/<script([\s\S]*?)<\/script>/gi, '') // 내부 스크립트 제거
+            .replace(/<\/p>|<\/div>|<\/tr>|<\/h1>|<\/h2>|<\/h3>/gi, '\n') // 주요 블록 단위 개행 보존
+            .replace(/<th([\s\S]*?)>|<td([\s\S]*?)>/gi, '  |  ') // 표(Table) 가독성을 위한 칸 구분선 처리
+            .replace(/<[^>]+>/g, '') // 나머지 하위 태그 완전 제거
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\n\s*\n+/g, '\n\n') // 연속된 불필요한 공백 라인 정돈
+            .trim();
 
-        browser = await puppeteer.launch({
-            executablePath: executablePath, // 🔥 핵심: 루트 권한 없는 로컬 바이너리 지정
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--font-render-hinting=none' // 폰트 깨짐 예방
-            ]
+        // PDF 인쇄용 문서 객체 생성 (A4, 기본 여백)
+        const doc = new PDFDocument({
+            size: 'A4',
+            margins: { top: 50, bottom: 50, left: 50, right: 50 }
         });
-
-        const page = await browser.newPage();
-        
-        // 원본 UI 스타일 및 테이블 구조 동기화 대기
-        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-        // PDF 인쇄 옵션 컴파일
-        const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true, // 오리지널 CSS 스타일 배경색상 강제 적용
-            margin: {
-                top: '20mm',
-                right: '15mm',
-                bottom: '20mm',
-                left: '15mm'
-            }
-        });
-
-        await browser.close();
 
         const downloadName = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
-        
+
+        // HTTP 응답 헤더 설정 (한글 파일명 및 스트림 즉시 출력 전송)
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
-        res.send(pdfBuffer);
+
+        // PDF 결과 스트림을 바로 브라우저 다운로드 파이프로 연결
+        doc.pipe(res);
+
+        // 💡 중요: 리눅스 기본 한글 폰트 시스템 연동을 통한 글자 깨짐 방지
+        // 서버에 설치된 기본 맑은 고딕이나 나눔 폰트가 있는지 순서대로 스캔합니다.
+        let fontPath = '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'; // 호스팅 서버 기본 나눔고딕
+        if (!fs.existsSync(fontPath)) {
+            fontPath = 'C:\\Windows\\Fonts\\malgun.ttf'; // 윈도우 로컬 테스트용 폴백
+        }
+
+        if (fs.existsSync(fontPath)) {
+            doc.font(fontPath);
+        } else {
+            // 폰트 파일이 운영체제 내에 아예 없는 비특권 환경인 경우, 
+            // 프로젝트 루트 폴더에 'malgun.ttf' 폰트 파일을 하나 업로드해두고
+            // doc.font(path.join(__dirname, 'malgun.ttf')); 형태로 연동하시는 것을 가장 추천합니다.
+            doc.font('Helvetica'); 
+        }
+
+        // 문서 상단 대제목 추가
+        const titleText = target === 'index' ? "📝 대단원 정보 복습활동지 (기본형)" : "📝 대단원 정보 복습활동지 (완성형 정답포함)";
+        doc.fontSize(18).text(titleText, { align: 'center' });
+        doc.moveDown(2);
+
+        // 정제된 텍스트 전체 배치
+        doc.fontSize(11).lineGap(5).text(cleanText, {
+            align: 'left',
+            width: 495
+        });
+
+        // 스트림 마감 처리 및 전송
+        doc.end();
 
     } catch (err) {
-        console.error("❌ PDF 생성 엔진 에러 로그:", err);
-        if (browser) await browser.close();
+        console.error("❌ PDFKit 빌더 치명적 에러:", err);
         res.status(500).send(`서버 내부 에러로 PDF를 생성하지 못했습니다: ${err.message}`);
     }
 });
