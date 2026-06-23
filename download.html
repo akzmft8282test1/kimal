@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026학년도 1학기 정보 모의평가 인쇄/다운로드 센터</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --alert-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --box-bg: #ffffff;
+            --purple-color: #9b59b6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--box-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: var(--primary-color); font-size: 1.7rem; margin-bottom: 5px; }
+        .desc { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-size: 0.95rem; }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin: 30px 0 15px 0;
+            padding-left: 8px;
+            border-left: 4px solid var(--accent-color);
+            font-weight: bold;
+        }
+
+        .exam-row {
+            background: #fafbfc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .exam-info h3 { margin: 0 0 5px 0; color: var(--primary-color); }
+        .exam-info p { margin: 0; color: #718096; font-size: 0.85rem; }
+        .btn-wrap { display: flex; gap: 10px; }
+        .btn { padding: 11px 18px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-q { background: var(--accent-color); color: white; }
+        .btn-a { background: var(--alert-color); color: white; }
+        .btn-p { background: var(--purple-color); color: white; }
+        .btn:hover { opacity: 0.9; }
+
+        #print-rendering-zone { display: none; }
+
+        @media print {
+            .container { display: none !important; }
+            #print-rendering-zone { display: block !important; }
+            body { background: #ffffff; padding: 0; margin: 0; color: #000; }
+            /* 원본 활동지 스타일이 인쇄 시에도 유지되도록 보장 */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>📝 정보 모의평가 기말대비 출력 센터</h1>
+    <div class="desc">웹사이트 본래의 레이아웃과 테이블 스타일 그대로 깨짐 없는 고해상도 PDF 출력이 가능합니다.</div>
+
+    <div class="section-title">Ⅰ. 회차별 모의평가 컴파일 팩 (서버 가상 인쇄)</div>
+    <div class="exam-row">
+        <div class="exam-info">
+            <h3>제 1회 모의평가</h3>
+            <p>정보 핵심 교과 개념 및 컴퓨팅 시스템 구조</p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-q" onclick="compileAndPrint('1', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="compileAndPrint('1', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+    <div class="exam-row">
+        <div class="exam-info">
+            <h3>제 2회 모의평가</h3>
+            <p>네트워크 체계 및 저작권법, 소프트웨어 라이선스 범위</p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-q" onclick="compileAndPrint('2', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="compileAndPrint('2', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+    <div class="exam-row">
+        <div class="exam-info">
+            <h3>제 3회 모의평가</h3>
+            <p>1학기 정보 기말고사 교육과정 전 범위 최종 마스터</p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-q" onclick="compileAndPrint('3', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="compileAndPrint('3', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+
+    <div class="section-title">Ⅱ. 교과 대단원 정기시험 대비 복습활동지 원본</div>
+    <div class="exam-row">
+        <div class="exam-info">
+            <h3>대단원 정보 복습활동지 (기본형)</h3>
+            <p>index.html 파일의 테이블 구조 및 CSS 스타일 완벽 보존</p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-p" onclick="downloadActivityPDF('index')">고해상도 PDF 다운로드</button>
+        </div>
+    </div>
+
+    <div class="exam-row">
+        <div class="exam-info">
+            <h3>대단원 정보 복습활동지 (완성형)</h3>
+            <p>endex.html 파일의 모든 정답 마킹 처리 및 피드백 내용 포함</p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-p" onclick="downloadActivityPDF('endex')">고해상도 PDF 다운로드</button>
+        </div>
+    </div>
+</div>
+
+<div id="activity-temporary-zone" style="position: absolute; left: -9999px; top: -9999px;"></div>
+<div id="print-rendering-zone"></div>
+
+<script>
+    let examData = {};
+
+    fetch('/api/exam-data')
+        .then(res => res.json())
+        .then(data => { examData = data; })
+        .catch(err => alert("시험 데이터 동기화 실패: " + err.message));
+
+    // 🚀 [핵심 추가] 원래 HTML 소스를 그대로 긁어와 브라우저 엔진으로 PDF를 굽는 획기적인 함수
+    function downloadActivityPDF(target) {
+        const tempZone = document.getElementById('activity-temporary-zone');
+        tempZone.innerHTML = "<p style='color:#333; font-size:16px;'>PDF 파일을 컴파일 중입니다. 잠시만 기다려주세요...</p>";
+        
+        // 1. 서버에 있는 원래 html 파일(index.html / endex.html) 내용을 그대로 비동기로 가져옵니다.
+        const fetchUrl = target === 'index' ? '/index.html' : '/endex.html';
+        
+        fetch(fetchUrl)
+            .then(res => {
+                if(!res.ok) throw new Error("파일을 읽어오지 못했습니다.");
+                return res.text();
+            })
+            .then(htmlText => {
+                // 2. 가상 영역에 HTML 주입
+                tempZone.innerHTML = htmlText;
+                
+                // 3. 파일명 지정 및 html2pdf 옵션 세팅 (화면 그대로 캡처 스냅샷 방식)
+                const filename = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
+                const opt = {
+                    margin:       [15, 12, 15, 12], // 상, 좌, 하, 우 여백 (mm 단위)
+                    filename:     filename,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { 
+                        scale: 2, // 2배 고해상도 렌더링 (글씨 및 표 깨짐 방지)
+                        useCORS: true,
+                        logging: false
+                    },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                // 4. html2pdf 라이브러리를 통해 화면 UI/CSS 그대로 PDF 다운로드 실행
+                html2pdf().set(opt).from(tempZone).save().then(() => {
+                    tempZone.innerHTML = ""; // 완료 후 청소
+                });
+            })
+            .catch(err => {
+                alert("PDF 다운로드 중 오류가 발생했습니다: " + err.message);
+                tempZone.innerHTML = "";
+            });
+    }
+
+    // 기존 1, 2, 3회 모의평가 컴파일 시스템 함수 유지
+    function compileAndPrint(examNum, type) {
+        if (!examData[examNum]) {
+            alert("아직 데이터를 받아오는 중입니다. 1~2초 후 버튼을 다시 클릭해 주세요.");
+            return;
+        }
+        const currentExamObj = examData[examNum];
+        const renderZone = document.getElementById("print-rendering-zone");
+        const isQ = (type === 'question');
+        let buildHtml = `<div class="print-page"><div class="pdf-header ${isQ ? '' : 'ans-style'}"><h1 class="pdf-title ${isQ ? '' : 'ans-style'}">📝 2026학년도 1학기 정보과 기말대비 모의평가 (제 ${examNum}회 ${isQ ? '문제지' : '정답 및 해설지'})</h1></div>`;
+
+        if (isQ) {
+            buildHtml += `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:10px; margin-bottom:25px;"><strong>학년/반/번호:</strong> 2학년 _____반 _____번 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>이름:</strong> _________________</div>`;
+            buildHtml += `<div style="font-size:15px; font-weight:bold; color:#3498db; margin:25px 0 12px 0; border-left:4px solid #3498db; padding-left:8px;">I. 선택형 문항 (객관식)</div>`;
+            currentExamObj.choice.forEach(q => {
+                const optLines = q.options.map(o => `<li>${o}</li>`).join('');
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><ul style="list-style:none; padding-left:5px; margin:5px 0;">${optLines}</ul></div>`;
+            });
+            buildHtml += `<div style="font-size:15px; font-weight:bold; color:#3498db; margin:35px 0 12px 0; border-left:4px solid #3498db; padding-left:8px;">II. 서술형 문항 (주관식)</div>`;
+            currentExamObj.essay.forEach(q => {
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><div style="border:1px solid #cbd5e1; min-height:90px; margin-top:8px; border-radius:4px; background:#fff;"></div></div>`;
+            });
+        } else {
+            buildHtml += `<div style="font-size:15px; font-weight:bold; color:#e74c3c; margin:25px 0 12px 0; border-left:4px solid #e74c3c; padding-left:8px;">I. 선택형 문항 정답 및 상세 피드백 표</div>`;
+            buildHtml += `<table style="width:100%; border-collapse:collapse; margin-top:15px;"><thead><tr><th style="border:1px solid #cbd5e1; padding:9px; background:#f1f5f9; font-weight:bold;">번호</th><th style="border:1px solid #cbd5e1; padding:9px; background:#f1f5f9; font-weight:bold;">정답 마킹</th><th style="border:1px solid #cbd5e1; padding:9px; background:#f1f5f9; font-weight:bold;">정답 해설 및 핵심 피드백 요약</th></tr></thead><tbody>`;
+            currentExamObj.choice.forEach(q => {
+                buildHtml += `<tr><td style="border:1px solid #cbd5e1; padding:9px; text-align:center;"><strong>${q.id}</strong></td><td style="border:1px solid #cbd5e1; padding:9px; text-align:center; color:#e74c3c; font-weight:bold;">${q.answer}번</td><td style="border:1px solid #cbd5e1; padding:9px; text-align:left; padding-left:10px;">${q.feedback || '출제 기준 답안 명시'}</td></tr>`;
+            });
+            buildHtml += `</tbody></table>`;
+
+            buildHtml += `<div style="font-size:15px; font-weight:bold; color:#e74c3c; margin:35px 0 12px 0; border-left:4px solid #e74c3c; padding-left:8px;">II. 서술형 문항 채점 기준 및 예시 답안</div>`;
+            currentExamObj.essay.forEach(q => {
+                const keywordsText = q.keywords ? q.keywords.join(', ') : '출제 문맥 부합';
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><div style="background:#fdf8f8; border:1px solid #f8b4b4; padding:10px; margin-top:6px; border-radius:5px;"><span style="color:#e74c3c; font-weight:bold;">[필수 채점 키워드인정 자원]:</span> <strong>${keywordsText}</strong><br><span style="color:#475569; font-size:12.5px; display:block; margin-top:4px;">💡 피드백 가이드: ${q.feedback || '별도 지침 없음'}</span></div></div>`;
+            });
+        }
+        buildHtml += `</div>`;
+        renderZone.innerHTML = buildHtml;
+        window.print();
+    }
+</script>
+
+</body>
+</html>
