@@ -144,17 +144,17 @@
         .then(data => { examData = data; })
         .catch(err => alert("시험 데이터 동기화 실패: " + err.message));
 
-    // 🚀 [핵심 추가] 원래 HTML 소스를 그대로 긁어와 브라우저 엔진으로 PDF를 굽는 획기적인 함수
+    // 🚀 [404 해결 및 CSS/UI 완전 매핑 보정] 
     function downloadActivityPDF(target) {
         const tempZone = document.getElementById('activity-temporary-zone');
-        tempZone.innerHTML = "<p style='color:#333; font-size:16px;'>PDF 파일을 컴파일 중입니다. 잠시만 기다려주세요...</p>";
+        tempZone.innerHTML = "<p style='color:#2c3e50; font-size:16px; font-weight:bold; text-align:center; padding:20px;'>복습활동지 디자인 및 원본 CSS를 컴파일 중입니다. 잠시만 기다려주세요...</p>";
         
-        // 1. 서버에 있는 원래 html 파일(index.html / endex.html) 내용을 그대로 비동기로 가져옵니다.
-        const fetchUrl = target === 'index' ? '/index.html' : '/endex.html';
+        // 💡 [핵심 수정]: 정적 파일 경로 대신 server.js 라우터 주소 연동
+        const fetchUrl = `/download/activity/${target}`;
         
         fetch(fetchUrl)
             .then(res => {
-                if(!res.ok) throw new Error("파일을 읽어오지 못했습니다.");
+                if(!res.ok) throw new Error("서버에서 활동지 소스 파일을 정상적으로 불러오지 못했습니다. (404/500)");
                 return res.text();
             })
             .then(htmlText => {
