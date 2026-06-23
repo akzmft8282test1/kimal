@@ -23,6 +23,8 @@ try {
 
 // 🌐 HTML 페이지 파일 라우팅
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/endex', (req, res) => res.sndeFile(path.join(__dirname, 'endex.html')));
+app.get('/index', (req, res) => res.sndeFile(path.join(__dirname, 'index.html')));
 app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
 app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
 
