@@ -200,35 +200,36 @@
 
     // 5. 서버에 POST로 안전하게 세션 다운로드 호출 요청
     function generateServerPDF(type) {
-        const btn = event.currentTarget;
-        const originText = btn.innerText;
-        btn.innerText = "PDF 빌드 중...";
-        btn.disabled = true;
+    const btn = event.currentTarget;
+    const originText = btn.innerText;
+    btn.innerText = "PDF 빌드 중...";
+    btn.disabled = true;
 
-        fetch(`/download/${type}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ examNum: currentExam })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("서버 PDF 렌더링에 실패했습니다.");
-            return res.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `정보_모의고사_제${currentExam}회_${type === 'question' ? '문제지' : '정답지'}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        })
-        .catch(err => alert(err.message))
-        .finally(() => {
-            btn.innerText = originText;
-            btn.disabled = false;
-        });
-    }
+    // 상대 경로 호환을 원천 해결하기 위해 백슬래시(/) 기반의 명확한 주소로 POST 요청을 보냅니다.
+    fetch(`/download/${type}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ examNum: currentExam })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("서버 PDF 렌더링에 실패했습니다. (404/500 확인)");
+        return res.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `정보_모의고사_제${currentExam}회_${type === 'question' ? '문제지' : '정답지'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(err => alert("다운로드 실패: " + err.message))
+    .finally(() => {
+        btn.innerText = originText;
+        btn.disabled = false;
+    });
+}
 </script>
 
 </body>
