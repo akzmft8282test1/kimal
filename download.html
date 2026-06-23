@@ -141,39 +141,40 @@
 
 <script>
     function requestPDF(examNum, type) {
-        const btn = event.currentTarget;
-        const originalText = btn.innerText;
-        btn.innerText = "생성 중...";
-        btn.disabled = true;
+    const btn = event.currentTarget;
+    const originalText = btn.innerText;
+    btn.innerText = "생성 중...";
+    btn.disabled = true;
 
-        fetch(`/download/${type}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ examNum: examNum })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("PDF 생성 중 서버 에러가 발생했습니다.");
-            return res.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `정보_제${examNum}회_모의고사_${type === 'question' ? '문제지' : '정답지'}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        })
-        .catch(err => {
-            alert(err.message);
-        })
-        .finally(() => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        });
-    }
+    // 서버의 app.post('/download/:type') 경로와 100% 매칭되도록 호출 주소 정의
+    fetch(`/download/${type}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ examNum: examNum })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("PDF를 빌드하지 못했습니다. 주소 또는 데이터를 확인하세요.");
+        return res.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `정보_제${examNum}회_모의고사_${type === 'question' ? '문제지' : '정답지'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(err => {
+        alert("오류: " + err.message);
+    })
+    .finally(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    });
+}
 </script>
 
 </body>
