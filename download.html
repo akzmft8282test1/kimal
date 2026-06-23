@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보 모의평가 PDF 다운로드 센터</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .download-container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+        .exam-card {
+            background: #fafbfc;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .exam-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .exam-info h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        .exam-info p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-q {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-q:hover { background-color: #2980b9; }
+        .btn-a {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-a:hover { background-color: #c0392b; }
+        .btn:disabled {
+            background-color: #bdc3c7 !important;
+            cursor: not-allowed;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="download-container">
+    <h1>📄 모의고사 PDF 인쇄/출력 센터</h1>
+    <div class="subtitle">교과 운영 지원 시스템 - 각 회차별 문항 데이터 동적 컴파일 변환</div>
+
+    <div class="exam-card">
+        <div class="exam-info">
+            <h3>제 1회 정보 모의평가</h3>
+            <p>구조화된 정보 개념 확인 및 선택형/서술형 혼합 구성</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-q" onclick="requestPDF('1', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="requestPDF('1', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+
+    <div class="exam-card">
+        <div class="exam-info">
+            <h3>제 2회 정보 모의평가</h3>
+            <p>네트워크 및 개인정보 보호, 라이선스 심화 집중 문항</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-q" onclick="requestPDF('2', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="requestPDF('2', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+
+    <div class="exam-card">
+        <div class="exam-info">
+            <h3>제 3회 정보 모의평가</h3>
+            <p>1학기 전 범위 종합 정리 최종 모의점검용 평가지</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-q" onclick="requestPDF('3', 'question')">문제지 다운로드</button>
+            <button class="btn btn-a" onclick="requestPDF('3', 'answer')">정답지 다운로드</button>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        본 평가지 인쇄물은 2026학년도 1학기 정기시험 대비용 학업 역량 진단 도구입니다.
+    </div>
+</div>
+
+<script>
+    function requestPDF(examNum, type) {
+        const btn = event.currentTarget;
+        const originalText = btn.innerText;
+        btn.innerText = "생성 중...";
+        btn.disabled = true;
+
+        fetch(`/download/${type}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ examNum: examNum })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("PDF 생성 중 서버 에러가 발생했습니다.");
+            return res.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `정보_제${examNum}회_모의고사_${type === 'question' ? '문제지' : '정답지'}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(err => {
+            alert(err.message);
+        })
+        .finally(() => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
