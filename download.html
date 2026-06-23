@@ -144,10 +144,12 @@
         .then(data => { examData = data; })
         .catch(err => alert("시험 데이터 동기화 실패: " + err.message));
 
-    // 🚀 [백지 현상 해결] 지연 타임아웃을 적용하여 렌더링이 완료된 후 PDF를 생성합니다.
+    // 🚀 [백지 현상 완전 해결 버전] DOM 강제 주입 및 복사 트리거를 활용한 캡처 방식
     function downloadActivityPDF(target) {
-        const tempZone = document.getElementById('activity-temporary-zone');
-        tempZone.innerHTML = "<p style='color:#2c3e50; font-size:16px; font-weight:bold; text-align:center; padding:20px;'>복습활동지 디자인 및 원본 CSS를 컴파일 중입니다. 잠시만 기다려주세요...</p>";
+        // 기존 컴파일 메시지 표시
+        const printZone = document.getElementById('print-rendering-zone');
+        printZone.style.display = 'block';
+        printZone.innerHTML = "<p id='pdf-loading-msg' style='color:#2c3e50; font-size:18px; font-weight:bold; text-align:center; padding:50px;'>복습활동지 오리지널 CSS 및 테이블 레이아웃을 빌드하고 있습니다. 잠시만 기다려주세요...</p>";
         
         const fetchUrl = `/download/activity/${target}`;
         
@@ -157,40 +159,56 @@
                 return res.text();
             })
             .then(htmlText => {
-                // 1. 가상 영역에 HTML 주입
-                tempZone.innerHTML = htmlText;
+                // 1. 백지 현상을 방지하기 위해 body 바로 아래에 실제 렌더링용 임시 컨테이너를 직접 동적 생성합니다.
+                const wrapper = document.createElement('div');
+                wrapper.id = 'pdf-capture-wrapper';
+                // 투명도를 0으로 주어 화면에 깜빡이는 현상을 방지하되, 브라우저가 물리적 크기(Layout)를 온전히 인식하게 만듭니다.
+                wrapper.style.position = 'absolute';
+                wrapper.style.left = '0';
+                wrapper.style.top = '0';
+                wrapper.style.width = '900px'; // 원본 활동지 max-width 규격 강제 매핑
+                wrapper.style.opacity = '0.01';
+                wrapper.style.zIndex = '-9999';
+                wrapper.innerHTML = htmlText;
                 
-                // 2. 가상 영역 안의 특정 요소만 정확히 타겟팅하기 위해 내부 컨테이너 확보 조치
-                // (html2pdf가 body 전체를 잡으면 여백 오류가 날 수 있으므로 내부 컨텐츠만 굽도록 지정 가능)
+                document.body.appendChild(wrapper);
                 
-                // 3. 파일명 지정 및 html2pdf 옵션 세팅
+                // 2. 파일명 지정 및 html2pdf 옵션 정밀 설정
                 const filename = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
                 const opt = {
-                    margin:       [15, 12, 15, 12], // 상, 좌, 하, 우 여백 (mm 단위)
+                    margin:       [15, 12, 15, 12],
                     filename:     filename,
                     image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { 
-                        scale: 2,           // 2배 고해상도 렌더링
-                        useCORS: true,      // 크로스오리진 허용
+                        scale: 2,           // 2배 고해상도 품질 보장
+                        useCORS: true, 
                         logging: false,
-                        letterRendering: true
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: 950    // 원본 테이블 스타일이 깨져서 축소되지 않도록 가상 뷰포트 고정
                     },
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
                 
-                // 🔥 [핵심 수정] setTimeout을 주어 브라우저가 화면에 표와 디자인을 그릴 시간을 줍니다 (500ms 주입)
+                // 3. HTML 요소가 완전히 브라우저 엔진에 마운트되도록 조금 더 넉넉하게 0.8초 대기 후 렌더링 시작
                 setTimeout(() => {
-                    html2pdf().set(opt).from(tempZone).save().then(() => {
-                        tempZone.innerHTML = ""; // 완료 후 청소
+                    html2pdf().set(opt).from(wrapper).save().then(() => {
+                        // 완료 후 동적 생성한 엘리먼트들 완전 제거 및 청소
+                        document.body.removeChild(wrapper);
+                        printZone.innerHTML = "";
+                        printZone.style.display = 'none';
                     }).catch(pdfErr => {
-                        alert("PDF 변환 중 에러: " + pdfErr.message);
+                        alert("PDF 렌더링 에러: " + pdfErr.message);
+                        if(document.getElementById('pdf-capture-wrapper')) {
+                            document.body.removeChild(wrapper);
+                        }
                     });
-                }, 500); // 0.5초 대기 후 스냅샷 생성
-                
+                }, 800);
             })
             .catch(err => {
                 alert("PDF 다운로드 중 오류가 발생했습니다: " + err.message);
-                tempZone.innerHTML = "";
+                printZone.innerHTML = "";
+                printZone.style.display = 'none';
             });
     }
 
