@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const puppeteer = require('puppeteer'); // html-pdf-node 대신 직접 puppeteer 로드
+const puppeteer = require('puppeteer-core'); // core 패키지 사용
+const chromium = require('chromium');        // sudo 없이 설치된 독립 바이너리
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -32,7 +33,7 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🖨 [안정성 최적화] index.html 및 endex.html 전용 서버 PDF 생성 라우터
+// 🖨 [비권한 환경 최적화] index.html 및 endex.html 전용 서버 PDF 생성 라우터
 // =======================================================
 app.get('/download/activity/:target', async (req, res) => {
     const target = req.params.target;
@@ -56,27 +57,30 @@ app.get('/download/activity/:target', async (req, res) => {
     try {
         let htmlContent = fs.readFileSync(filePath, 'utf8');
 
-        // 리눅스/우분투 서버 크래시를 원천 차단하는 브라우저 샌드박스 면제 옵션 집약
+        // sudo 없이 설치된 로컬 chromium 경로 확인
+        const executablePath = chromium.path;
+
         browser = await puppeteer.launch({
-            headless: 'new',
+            executablePath: executablePath, // 🔥 핵심: 루트 권한 없는 로컬 바이너리 지정
+            headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--disable-gpu'
+                '--disable-gpu',
+                '--font-render-hinting=none' // 폰트 깨짐 예방
             ]
         });
 
         const page = await browser.newPage();
         
-        // 정적 HTML 내용 주입 및 로딩 대기 타임아웃 방지
+        // 원본 UI 스타일 및 테이블 구조 동기화 대기
         await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-        // 원본 UI 테마 색상 및 CSS 규격을 고해상도로 컴파일 인쇄
+        // PDF 인쇄 옵션 컴파일
         const pdfBuffer = await page.pdf({
             format: 'A4',
-            printBackground: true, // 복습활동지 고유 배경 및 박스 라인 유지 필수
+            printBackground: true, // 오리지널 CSS 스타일 배경색상 강제 적용
             margin: {
                 top: '20mm',
                 right: '15mm',
@@ -89,13 +93,12 @@ app.get('/download/activity/:target', async (req, res) => {
 
         const downloadName = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
         
-        // 클라이언트에 브라우저 다운로드 지침 전달 (한글 깨짐 차단)
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
         res.send(pdfBuffer);
 
     } catch (err) {
-        console.error("❌ Puppeteer PDF 컴파일러 치명적 에러:", err);
+        console.error("❌ PDF 생성 엔진 에러 로그:", err);
         if (browser) await browser.close();
         res.status(500).send(`서버 내부 에러로 PDF를 생성하지 못했습니다: ${err.message}`);
     }
