@@ -34,6 +34,8 @@ app.get('/api/exam-data', (req, res) => {
 // =======================================================
 // 🖨 [새로 추가] index.html 및 endex.html 전용 서버 PDF 생성 라우터
 // =======================================================
+// server.js의 /download/activity/:target 라우터 내부 수정
+
 app.get('/download/activity/:target', (req, res) => {
     const target = req.params.target;
     let targetFileName = '';
@@ -52,14 +54,19 @@ app.get('/download/activity/:target', (req, res) => {
         return res.status(404).send("해당 활동지 파일을 서버에서 찾을 수 없습니다.");
     }
 
-    // 파일 로드 및 원본 레이아웃/CSS 유실 없는 렌더링 옵션 세팅
     let htmlContent = fs.readFileSync(filePath, 'utf8');
 
-    // PDF 생성 기본 옵션 명시 (A4 크기, 인쇄 여백 최적화)
+    // 🔥 [중요] 기존 options에 args 설정을 명시적으로 주입합니다.
     const options = {
         format: 'A4',
         margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
-        printBackground: true // CSS 테마 배경색상, 테이블 헤더 색상 보존 강제 활성화
+        printBackground: true,
+        // 아래 args 옵션이 리눅스 환경 브라우저 크래시를 방지하는 핵심입니다.
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage'
+        ] 
     };
 
     const file = { content: htmlContent };
@@ -68,11 +75,12 @@ app.get('/download/activity/:target', (req, res) => {
         .then(pdfBuffer => {
             const downloadName = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=${downloadName}`);
+            // 브라우저에서 한글 인코딩 깨짐을 예방하기 위해 디스포지션 이름 인코딩 설정 추가
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
             res.send(pdfBuffer);
         })
         .catch(err => {
-            console.error("PDF 생성 에러:", err);
+            console.error("❌ PDF 생성 엔진 에러 로그:", err); // 콘솔에 상세 에러를 찍도록 변경
             res.status(500).send("서버 내부 에러로 PDF를 생성하지 못했습니다.");
         });
 });
