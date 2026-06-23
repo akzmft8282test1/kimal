@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const pdf = require('html-pdf-node'); // 백엔드 PDF 변환 라이브러리 추가
+const puppeteer = require('puppeteer'); // html-pdf-node 대신 직접 puppeteer 로드
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -32,11 +32,9 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🖨 [새로 추가] index.html 및 endex.html 전용 서버 PDF 생성 라우터
+// 🖨 [안정성 최적화] index.html 및 endex.html 전용 서버 PDF 생성 라우터
 // =======================================================
-// server.js의 /download/activity/:target 라우터 내부 수정
-
-app.get('/download/activity/:target', (req, res) => {
+app.get('/download/activity/:target', async (req, res) => {
     const target = req.params.target;
     let targetFileName = '';
 
@@ -54,35 +52,53 @@ app.get('/download/activity/:target', (req, res) => {
         return res.status(404).send("해당 활동지 파일을 서버에서 찾을 수 없습니다.");
     }
 
-    let htmlContent = fs.readFileSync(filePath, 'utf8');
+    let browser;
+    try {
+        let htmlContent = fs.readFileSync(filePath, 'utf8');
 
-    // 🔥 [중요] 기존 options에 args 설정을 명시적으로 주입합니다.
-    const options = {
-        format: 'A4',
-        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
-        printBackground: true,
-        // 아래 args 옵션이 리눅스 환경 브라우저 크래시를 방지하는 핵심입니다.
-        args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage'
-        ] 
-    };
-
-    const file = { content: htmlContent };
-
-    pdf.generatePdf(file, options)
-        .then(pdfBuffer => {
-            const downloadName = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
-            res.setHeader('Content-Type', 'application/pdf');
-            // 브라우저에서 한글 인코딩 깨짐을 예방하기 위해 디스포지션 이름 인코딩 설정 추가
-            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
-            res.send(pdfBuffer);
-        })
-        .catch(err => {
-            console.error("❌ PDF 생성 엔진 에러 로그:", err); // 콘솔에 상세 에러를 찍도록 변경
-            res.status(500).send("서버 내부 에러로 PDF를 생성하지 못했습니다.");
+        // 리눅스/우분투 서버 크래시를 원천 차단하는 브라우저 샌드박스 면제 옵션 집약
+        browser = await puppeteer.launch({
+            headless: 'new',
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--disable-gpu'
+            ]
         });
+
+        const page = await browser.newPage();
+        
+        // 정적 HTML 내용 주입 및 로딩 대기 타임아웃 방지
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+        // 원본 UI 테마 색상 및 CSS 규격을 고해상도로 컴파일 인쇄
+        const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true, // 복습활동지 고유 배경 및 박스 라인 유지 필수
+            margin: {
+                top: '20mm',
+                right: '15mm',
+                bottom: '20mm',
+                left: '15mm'
+            }
+        });
+
+        await browser.close();
+
+        const downloadName = target === 'index' ? 'Information_Base_Activity.pdf' : 'Information_Final_Activity.pdf';
+        
+        // 클라이언트에 브라우저 다운로드 지침 전달 (한글 깨짐 차단)
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`);
+        res.send(pdfBuffer);
+
+    } catch (err) {
+        console.error("❌ Puppeteer PDF 컴파일러 치명적 에러:", err);
+        if (browser) await browser.close();
+        res.status(500).send(`서버 내부 에러로 PDF를 생성하지 못했습니다: ${err.message}`);
+    }
 });
 
 app.listen(PORT, () => console.log(`🚀 서버가 안전하게 가동되었습니다. 포트: ${PORT}`));
