@@ -228,11 +228,11 @@
             buildHtml += `<div style="font-size:15px; font-weight:bold; color:#3498db; margin:25px 0 12px 0; border-left:4px solid #3498db; padding-left:8px;">I. 선택형 문항 (객관식)</div>`;
             currentExamObj.choice.forEach(q => {
                 const optLines = q.options.map(o => `<li>${o}</li>`).join('');
-                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><ul style="list-style:none; padding-left:5px; margin:5px 0;">${optLines}</ul></div>`;
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.question}</div><ul style="list-style:none; padding-left:5px; margin:5px 0;">${optLines}</ul></div>`;
             });
             buildHtml += `<div style="font-size:15px; font-weight:bold; color:#3498db; margin:35px 0 12px 0; border-left:4px solid #3498db; padding-left:8px;">II. 서술형 문항 (주관식)</div>`;
             currentExamObj.essay.forEach(q => {
-                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><div style="border:1px solid #cbd5e1; min-height:90px; margin-top:8px; border-radius:4px; background:#fff;"></div></div>`;
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.question}</div><div style="border:1px solid #cbd5e1; min-height:90px; margin-top:8px; border-radius:4px; background:#fff;"></div></div>`;
             });
         } else {
             buildHtml += `<div style="font-size:15px; font-weight:bold; color:#e74c3c; margin:25px 0 12px 0; border-left:4px solid #e74c3c; padding-left:8px;">I. 선택형 문항 정답 및 상세 피드백 표</div>`;
@@ -245,7 +245,7 @@
             buildHtml += `<div style="font-size:15px; font-weight:bold; color:#e74c3c; margin:35px 0 12px 0; border-left:4px solid #e74c3c; padding-left:8px;">II. 서술형 문항 채점 기준 및 예시 답안</div>`;
             currentExamObj.essay.forEach(q => {
                 const keywordsText = q.keywords ? q.keywords.join(', ') : '출제 문맥 부합';
-                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.id}. ${q.question}</div><div style="background:#fdf8f8; border:1px solid #f8b4b4; padding:10px; margin-top:6px; border-radius:5px;"><span style="color:#e74c3c; font-weight:bold;">[필수 채점 키워드인정 자원]:</span> <strong>${keywordsText}</strong><br><span style="color:#475569; font-size:12.5px; display:block; margin-top:4px;">💡 피드백 가이드: ${q.feedback || '별도 지침 없음'}</span></div></div>`;
+                buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.question}</div><div style="background:#fdf8f8; border:1px solid #f8b4b4; padding:10px; margin-top:6px; border-radius:5px;"><span style="color:#e74c3c; font-weight:bold;">[필수 채점 키워드인정 자원]:</span> <strong>${keywordsText}</strong><br><span style="color:#475569; font-size:12.5px; display:block; margin-top:4px;">💡 피드백 가이드: ${q.feedback || '별도 지침 없음'}</span></div></div>`;
             });
         }
         buildHtml += `</div>`;
