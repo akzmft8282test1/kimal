@@ -27,6 +27,10 @@ app.get('/endex', (req, res) => res.sndeFile(path.join(__dirname, 'endex.html'))
 app.get('/index', (req, res) => res.sndeFile(path.join(__dirname, 'index.html')));
 app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
 app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
+app.get('/b1', (req, res) => res.sendFile(path.join(__dirname, 'Bms.html')));
+app.get('/b2', (req, res) => res.sendFile(path.join(__dirname, 'Bml.html')));
+
+
 
 // 📊 프론트엔드 데이터 싱크 API
 app.get('/api/exam-data', (req, res) => {
