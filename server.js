@@ -27,7 +27,7 @@ app.get('/endex', (req, res) => res.sndeFile(path.join(__dirname, 'endex.html'))
 app.get('/index', (req, res) => res.sndeFile(path.join(__dirname, 'index.html')));
 app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
 app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
-app.get('/b1', (req, res) => res.sendFile(path.join(__dirname, 'Bms.html')));
+app.get('/b1', (req, res) => res.sendFile(path.join(__dirname, 'Bm1.html')));
 app.get('/b2', (req, res) => res.sendFile(path.join(__dirname, 'Bml.html')));
 
 
