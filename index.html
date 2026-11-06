@@ -5,103 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026학년도 2학기 1차 정기시험 대비 정보 복습활동지</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --secondary-color: #16a085;
+            --answer-color: #d35400;
+            --bg-color: #f8fafc;
+            --box-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
         body {
-            font-family: 'Malgun Gothic', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
             line-height: 1.6;
-            color: #333;
-            max-width: 900px;
+            color: #334155;
+            max-width: 920px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+            padding: 24px;
+            background-color: var(--bg-color);
         }
-        h1 {
+
+        .header-container {
             text-align: center;
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+        }
+
+        .student-info {
+            text-align: right;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
         h2 {
-            color: #2c3e50;
-            background-color: #e8f4f8;
-            padding: 10px;
-            border-left: 5px solid #3498db;
-            margin-top: 30px;
+            color: var(--primary-color);
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            padding: 12px 16px;
+            border-left: 6px solid var(--accent-color);
+            border-radius: 6px;
+            margin-top: 35px;
+            font-size: 1.35rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
+
         h3 {
-            color: #16a085;
-            margin-top: 20px;
-            border-bottom: 1px solid #16a085;
-            padding-bottom: 5px;
+            color: var(--secondary-color);
+            margin-top: 25px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+            font-size: 1.15rem;
         }
+
+        .answer {
+            color: var(--answer-color);
+            font-weight: 700;
+        }
+
+        .box {
+            background-color: var(--box-bg);
+            border: 1px dashed #cbd5e1;
+            padding: 16px;
+            margin: 14px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
+            margin: 16px 0;
             background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
+
         th, td {
-            border: 1px solid #bdc3c7;
-            padding: 12px;
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
             text-align: left;
+            font-size: 0.95rem;
         }
+
         th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            font-weight: 700;
         }
-        .student-info {
-            text-align: right;
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .answer {
-            color: #d35400;
-            font-weight: bold;
-        }
-        .box {
-            background-color: #fdfefe;
-            border: 1px dashed #bdc3c7;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
+
         ul, ol {
-            padding-left: 20px;
+            padding-left: 22px;
         }
+
         li {
             margin-bottom: 8px;
         }
 
-        /* 🖨️ 인쇄/PDF 변환 최적화 및 줄바꿈 방지 */
+        /* 🎨 알고리즘 구조도 미니 카드 (CSS) */
+        .algo-diagram-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .algo-card {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .algo-card-header {
+            font-weight: bold;
+            text-align: center;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .algo-card.natural .algo-card-header { background: #e0f2fe; color: #0369a1; }
+        .algo-card.pseudo .algo-card-header { background: #fef3c7; color: #b45309; }
+        .algo-card.flowchart .algo-card-header { background: #f3e8ff; color: #6b21a8; }
+
+        .algo-content {
+            font-family: monospace, 'Courier New', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 미니 순서도 CSS */
+        .mini-flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-node {
+            padding: 4px 14px;
+            font-size: 0.82rem;
+            text-align: center;
+            font-weight: bold;
+            border: 1.5px solid #64748b;
+        }
+
+        .node-terminal { border-radius: 15px; background: #dcfce7; color: #15803d; border-color: #22c55e; }
+        .node-process { background: #e0f2fe; color: #0369a1; border-color: #38bdf8; }
+        .node-io { transform: skewX(-12deg); background: #fef3c7; color: #b45309; border-color: #fde047; }
+        .node-io span { display: inline-block; transform: skewX(12deg); }
+        .flow-arrow { font-size: 0.8rem; color: #64748b; margin: -2px 0; }
+
+        /* 블록 코드 에뮬레이터 (디버깅 문항) */
+        .scratch-block {
+            background: #4c97ff;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.88rem;
+            margin-bottom: 4px;
+            display: inline-block;
+            box-shadow: 0 2px 0 #3373cc;
+        }
+        .scratch-block.repeat { background: #ffab19; box-shadow: 0 2px 0 #cf8500; }
+        .scratch-block.say { background: #ff6680; box-shadow: 0 2px 0 #d93856; }
+        .scratch-indent { margin-left: 18px; border-left: 3px solid #ffab19; padding-left: 8px; }
+
         @media print {
-            body {
-                background-color: #fff;
-                padding: 0;
-                max-width: 100%;
-            }
-            h2, h3 {
-                page-break-after: avoid;
-                break-after: avoid;
-            }
-            tr {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-            .box, li, p {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            body { background-color: #fff; padding: 0; max-width: 100%; }
+            h2, h3 { page-break-after: avoid; break-after: avoid; }
+            tr, .algo-card, .box { page-break-inside: avoid; break-inside: avoid; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
 <body>
 
-    <h1>2026학년도 2학기 1차 정기시험 대비 활동지(정보)</h1>
-    <div class="student-info">2학년 반 번 이름: </div>
+    <div class="header-container">
+        <h1>2026학년도 2학기 1차 정기시험 대비 활동지(정보)</h1>
+        <div class="student-info">Ⅲ. 알고리즘과 프로그래밍 ~ Ⅳ. 인공지능 &nbsp;|&nbsp; 2학년 반 번 이름: </div>
+    </div>
 
     <h2>Part 1. 알고리즘과 프로그래밍</h2>
     
@@ -114,18 +212,21 @@
         <li><strong><span class="answer">문제 추상화</span></strong> : 문제 해결을 위해 문제에 대한 공통적인 특성이나 핵심 요소를 추출하는 것이다.</li>
     </ol>
 
-    <h3>2. 문제 해결을 위한 상태 정의하기 (도서관 대출)</h3>
+    <h3>2. 문제 해결을 위한 상태 정의하기</h3>
+    <div class="box">
+        <strong>[실생활 예시 문항]</strong> 도서관에서 책을 대출하는 상황의 초기 상태, 현재 상태, 목표 상태를 정의해 보세요.
+    </div>
     <table>
         <thead>
             <tr>
-                <th>초기 상태</th>
-                <th>현재 상태</th>
-                <th>목표 상태</th>
+                <th style="width: 33%;">초기 상태</th>
+                <th style="width: 33%;">현재 상태</th>
+                <th style="width: 34%;">목표 상태</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><span class="answer">책을 대출하지 않은 상태 (도서관 입장)</span></td>
+                <td><span class="answer">책을 대출하지 않은 상태<br>(도서관에 입장한 상태)</span></td>
                 <td><span class="answer">원하는 책을 찾고 있는 상태</span></td>
                 <td><span class="answer">책을 대출하여 도서관을 나가는 상태</span></td>
             </tr>
@@ -146,7 +247,7 @@
         효율적인 알고리즘은 <strong><span class="answer">작업량</span></strong>이 적어 <strong><span class="answer">수행 시간</span></strong>이 짧고, <strong><span class="answer">기억 장소</span></strong>의 사용량이 적은 알고리즘을 말한다.
     </div>
 
-    <h3>4. 알고리즘 표현 방법과 순서도 기호</h3>
+    <h3>4. 알고리즘 표현 방법 및 구조도</h3>
     <table>
         <thead>
             <tr>
@@ -170,38 +271,81 @@
         </tbody>
     </table>
 
+    <!-- 🎨 알고리즘별 구조도 (CSS 시각화) -->
+    <p><strong>[알고리즘 표현 방법별 덧셈 알고리즘 구조도]</strong></p>
+    <div class="algo-diagram-container">
+        <div class="algo-card natural">
+            <div class="algo-card-header">자연어로 표현한 덧셈 알고리즘</div>
+            <div class="algo-content">
+                • 변수 a에 10을 저장한다.<br>
+                • 변수 b에 5를 저장한다.<br>
+                • a와 b를 더해서 변수 sum에 저장한다.<br>
+                • sum값을 출력한다.
+            </div>
+        </div>
+
+        <div class="algo-card pseudo">
+            <div class="algo-card-header">의사 코드로 표현한 덧셈 알고리즘</div>
+            <div class="algo-content">
+                a ← 10<br>
+                b ← 5<br>
+                sum ← a + b<br>
+                <strong>출력</strong> sum
+            </div>
+        </div>
+
+        <div class="algo-card flowchart">
+            <div class="algo-card-header">순서도로 표현한 덧셈 알고리즘</div>
+            <div class="algo-content">
+                <div class="mini-flowchart">
+                    <div class="flow-node node-terminal">시작</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-node node-process">a=10, b=5</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-node node-process">sum = a + b</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-node node-io"><span>sum</span></div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-node node-terminal">끝</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 순서도 기호와 의미 표 -->
+    <p><strong>[순서도의 기호와 의미]</strong></p>
     <table>
         <thead>
             <tr>
-                <th style="width: 25%;">기호 명칭</th>
+                <th style="width: 25%;">기호 모양 (명칭)</th>
                 <th style="width: 75%;">의미 및 용도</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><strong>단말 (둥근 사각형)</strong></td>
+                <td><span class="flow-node node-terminal">단말</span> (둥근 사각형)</td>
                 <td>순서도의 시작과 끝에 사용</td>
             </tr>
             <tr>
-                <td><strong>입출력 (평행사변형)</strong></td>
+                <td><span class="flow-node node-io"><span>입출력</span></span> (평행사변형)</td>
                 <td>데이터의 입력과 출력에 사용</td>
             </tr>
             <tr>
-                <td><strong>처리 (직사각형)</strong></td>
-                <td>연산과 같은 처리 작업에 사용</td>
+                <td><span class="flow-node node-process">처리</span> (직사각형)</td>
+                <td>연산과 같은 처리에 사용</td>
             </tr>
             <tr>
-                <td><strong>판단 (마름모)</strong></td>
+                <td><span style="display:inline-block; transform:rotate(45deg); padding:2px 8px; border:1.5px solid #e11d48; background:#ffe4e6; font-size:0.75rem; font-weight:bold; color:#be123c;">판단</span> (마름모)</td>
                 <td>조건에 따른 비교, 판단에 사용</td>
             </tr>
             <tr>
-                <td><strong>흐름선 (화살표)</strong></td>
+                <td><strong>흐름선</strong> (화살표 →)</td>
                 <td>실행의 흐름을 나타낼 때 사용</td>
             </tr>
         </tbody>
     </table>
 
-    <h3>5. 문제 해결 전략</h3>
+    <h3>5. 문제 해결 전략 알아보기</h3>
     <ul>
         <li><strong><span class="answer">전체 탐색</span></strong> : 모든 가능성을 적용하여 처음부터 끝까지 데이터를 탐색하여 찾는 방법이다.</li>
         <li><strong><span class="answer">분할 정복</span></strong> : 크고 복잡한 문제를 해결 가능한 작은 문제로 나누어 해결한 후 합치는 방법이다.</li>
@@ -209,211 +353,324 @@
         <li><strong><span class="answer">되추적</span></strong> : 문제의 해답을 찾아가다가 잘못된 것 같으면 되돌아가서 다른 선택을 하는 방법이다.</li>
     </ul>
 
-    <h3>6. 프로그래밍 언어 및 순차 저장 개념</h3>
+    <h3>6. 프로그래밍 언어의 종류와 특징</h3>
     <table>
         <thead>
             <tr>
                 <th style="width: 30%;">종류</th>
-                <th style="width: 70%;">의미 및 특징</th>
+                <th style="width: 70%;">의미 및 예시</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><strong>블록 기반 언어</strong></td>
-                <td>블록 형태로 구성된 명령어를 마우스로 끌어와 조립하여 작성 (예: 엔트리, 스크래치, 앱인벤터)</td>
+                <td><strong style="color:#e11d48;">프로그래밍 언어</strong></td>
+                <td>프로그램을 작성할 때 사용하는 언어로 종류가 다양하다.</td>
             </tr>
             <tr>
-                <td><strong>텍스트 기반 언어</strong></td>
-                <td>키보드로 명령어를 일일이 입력하여 작성 (예: C언어, 파이썬, 자바)</td>
+                <td><strong style="color:#e11d48;">블록 기반 프로그래밍 언어</strong></td>
+                <td>블록형태로 구성된 명령어를 마우스로 끌어와 조립하는 방식으로 프로그램을 작성한다.<br><small style="color:#64748b;">ex) 엔트리, 스크래치, 앱인벤터 등</small></td>
+            </tr>
+            <tr>
+                <td><strong style="color:#e11d48;">텍스트 기반 프로그래밍 언어</strong></td>
+                <td>키보드로 명령어를 일일이 입력하여 프로그램을 작성한다.<br><small style="color:#64748b;">ex) C언어, 파이썬, 자바 등</small></td>
             </tr>
         </tbody>
     </table>
 
+    <h3>7. 데이터의 순차 저장 핵심 개념과 용어</h3>
     <ol>
         <li><strong><span class="answer">변수</span></strong> : 프로그램 실행 중 발생하는 하나의 데이터 값을 저장하기 위한 기억 장소이다.</li>
         <li><strong><span class="answer">리스트</span></strong> : 여러 개의 데이터를 순차적으로 저장하고 하나의 이름으로 관리할 수 있는 자료 구조이다.</li>
     </ol>
+
     <div class="box">
         <strong>💡 리스트의 특징:</strong><br>
-        ① 리스트에 입력된 데이터를 <strong><span class="answer">항목</span></strong>이라고 하며, 각 항목은 <strong><span class="answer">순차적</span></strong>으로 저장된다.<br>
-        ② 리스트는 서로 다른 <strong><span class="answer">유형</span></strong>의 데이터를 저장할 수 있다.<br>
-        ③ 각 항목에는 <strong><span class="answer">번호</span></strong>가 부여되며, 번호는 <strong><span class="answer">1</span></strong>번부터 시작된다.<br>
-        ④ <strong><span class="answer">항목 번호</span></strong>를 활용하면 데이터의 검색, 수정, 삭제를 쉽게 할 수 있다.
+        ① 리스트에 입력된 데이터를 ( <strong><span class="answer">항목</span></strong> )이라고 하며, 각 항목은 ( <strong><span class="answer">순차적</span></strong> )으로 저장된다.<br>
+        ② 리스트는 서로 다른 ( <strong><span class="answer">유형</span></strong> )의 데이터를 저장할 수 있다.<br>
+        ③ 각 항목에는 ( <strong><span class="answer">번호</span></strong> )가 부여되며, 번호는 ( <strong><span class="answer">1</span></strong> )번부터 시작된다.<br>
+        ④ ( <strong><span class="answer">항목 번호</span></strong> )를 활용하면 데이터의 검색 및 수정, 삭제를 쉽게 할 수 있다.
     </div>
 
-    <h3>7. 논리 연산자와 중첩 제어문</h3>
-    <ul>
-        <li><strong><span class="answer">논리연산자</span></strong> : 연산자 간의 논리적인 관계를 나타내며 결과는 참 또는 거짓이다.</li>
-        <li><strong><span class="answer">논리곱(AND)</span></strong> : 두 연산이 모두 참인 경우에만 결과가 참이다.</li>
-        <li><strong><span class="answer">논리합(OR)</span></strong> : 두 연산 중 하나라도 참이면 결과가 참이다.</li>
-        <li><strong><span class="answer">논리부정(NOT)</span></strong> : 연산 결과를 반대로(참➔거짓, 거짓➔참) 바꾼다.</li>
-        <li><strong><span class="answer">중첩제어문</span></strong> : 제어문 안에 또 다른 제어문이 포함되어 있는 구조이다.</li>
-    </ul>
+    <h3>8. 논리연산자와 중첩제어문 핵심 개념과 용어</h3>
+    <ol>
+        <li><strong><span class="answer">논리연산자</span></strong> : 연산자 간의 논리적인 관계를 나타낼 때 사용하는 연산자로, 연산 결과는 참 또는 거짓이다.</li>
+        <li><strong><span class="answer">논리곱(AND)</span></strong> : 두 연산이 모두 참인 경우에만 결과가 참이고, 나머지는 거짓인 연산이다.</li>
+        <li><strong><span class="answer">논리합(OR)</span></strong> : 두 연산 중 하나라도 참이면 결과가 참이고, 둘 다 거짓일 때만 거짓인 연산이다.</li>
+        <li><strong><span class="answer">논리부정(NOT)</span></strong> : 연산이 참이면 거짓으로, 거짓이면 참으로 바꾸는 연산이다.</li>
+        <li><strong><span class="answer">중첩제어문</span></strong> : 제어문 안에 또 다른 제어문이 포함되어 있는 프로그램 구조이다.</li>
+    </ol>
 
-    <h3>8. 함수와 디버깅</h3>
+    <!-- 논리 연산자 진리표 3종 -->
+    <p><strong>[논리 연산자 진리표]</strong></p>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <table style="flex: 1; min-width: 240px;">
+            <thead><tr><th colspan="3" style="text-align:center; background:#e0f2fe;">논리곱 (AND, 그리고)</th></tr><tr><th>입력 A</th><th>입력 B</th><th>출력 (A 그리고 B)</th></tr></thead>
+            <tbody>
+                <tr><td>참</td><td>참</td><td><span class="answer">참</span></td></tr>
+                <tr><td>참</td><td>거짓</td><td><span class="answer">거짓</span></td></tr>
+                <tr><td>거짓</td><td>참</td><td><span class="answer">거짓</span></td></tr>
+                <tr><td>거짓</td><td>거짓</td><td><span class="answer">거짓</span></td></tr>
+            </tbody>
+        </table>
+
+        <table style="flex: 1; min-width: 240px;">
+            <thead><tr><th colspan="3" style="text-align:center; background:#fef3c7;">논리합 (OR, 또는)</th></tr><tr><th>입력 A</th><th>입력 B</th><th>출력 (A 또는 B)</th></tr></thead>
+            <tbody>
+                <tr><td>참</td><td>참</td><td><span class="answer">참</span></td></tr>
+                <tr><td>참</td><td>거짓</td><td><span class="answer">참</span></td></tr>
+                <tr><td>거짓</td><td>참</td><td><span class="answer">참</span></td></tr>
+                <tr><td>거짓</td><td>거짓</td><td><span class="answer">거짓</span></td></tr>
+            </tbody>
+        </table>
+
+        <table style="flex: 1; min-width: 200px;">
+            <thead><tr><th colspan="2" style="text-align:center; background:#f3e8ff;">논리 부정 (NOT)</th></tr><tr><th>입력 A</th><th>출력 (A가 아니다)</th></tr></thead>
+            <tbody>
+                <tr><td>참</td><td><span class="answer">거짓</span></td></tr>
+                <tr><td>거짓</td><td><span class="answer">참</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>9. 함수와 디버깅 핵심 개념과 용어</h3>
     <ol>
         <li><strong><span class="answer">함수</span></strong> : 프로그램에서 특정 기능을 수행하기 위해 여러 개의 명령어를 작은 단위의 블록으로 묶어 놓은 것이다.</li>
         <li><strong><span class="answer">호출</span></strong> : 만들어진 함수가 프로그램 안에서 실행되도록 불러오는 과정이다.</li>
         <li><strong><span class="answer">디버깅</span></strong> : 프로그램 실행 중 발생한 오류가 있는 코드를 찾아내고 수정하는 과정이다.</li>
     </ol>
     <div class="box">
-        <strong>💡 함수를 사용하면 좋은 점:</strong><br>
-        ① 같은 작업을 반복 사용하는 부분을 함수로 만들어 호출하면 시간과 노력을 줄일 수 있다.<br>
-        ② 반복되는 부분도 함수만 수정하여 재사용할 수 있으므로 프로그램을 쉽게 수정할 수 있다.
+        <strong>💡 함수를 사용하면 좋은 점 (교과서 128쪽):</strong><br>
+        ① 프로그램에서 같은 작업을 여러번 반복하여 사용하는 부분을 함수로 만들고, 이 함수를 호출하여 이용하면 <strong>시간과 노력을 줄일 수 있다.</strong><br>
+        ② 반복되는 부분도 함수만 수정하여 재사용할 수 있으므로 <strong>프로그램을 쉽게 수정할 수 있다.</strong>
+    </div>
+
+    <h3>10. 프로그램의 오류 찾아보기 (디버깅 실습)</h3>
+    <div class="box">
+        <strong>[프로그램 설명]</strong> 임의의 수 N을 입력받아 1부터 N까지의 합을 구하는 프로그램이다. (변수: 시작 값, 종료 값, 합계)
+    </div>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 280px; background: #fff5f5; border: 1px solid #feb2b2; padding: 12px; border-radius: 8px;">
+            <strong style="color: #c53030;">❌ [오류 코드]</strong><br>
+            <div style="margin-top: 8px;">
+                <div class="scratch-block">시작하기 버튼을 클릭했을 때</div><br>
+                <div class="scratch-block">시작값 을(를) 1 (으)로 정하기</div><br>
+                <div class="scratch-block">원하는 숫자를 입력하세요 묻고 대답 기다리기</div><br>
+                <div class="scratch-block">종료값 을(를) 대답 (으)로 정하기</div><br>
+                <div class="scratch-block repeat">종료값 번 반복하기</div>
+                <div class="scratch-indent">
+                    <div class="scratch-block" style="background:#e53e3e;">시작값 에 1 만큼 더하기 (오류!)</div><br>
+                    <div class="scratch-block" style="background:#e53e3e;">합계 에 시작값 만큼 더하기</div>
+                </div>
+                <div class="scratch-block say">합: 합계 값 을(를) 합친 값 말하기</div>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 280px; background: #f0fdf4; border: 1px solid #86efac; padding: 12px; border-radius: 8px;">
+            <strong style="color: #15803d;">✅ [디버깅 수정 코드]</strong><br>
+            <div style="margin-top: 8px;">
+                <div class="scratch-block">시작하기 버튼을 클릭했을 때</div><br>
+                <div class="scratch-block">시작값 을(를) 1 (으)로 정하기</div><br>
+                <div class="scratch-block">원하는 숫자를 입력하세요 묻고 대답 기다리기</div><br>
+                <div class="scratch-block">종료값 을(를) 대답 (으)로 정하기</div><br>
+                <div class="scratch-block repeat">종료값 번 반복하기</div>
+                <div class="scratch-indent">
+                    <div class="scratch-block" style="background:#22c55e;">합계 에 시작값 만큼 더하기 (수정)</div><br>
+                    <div class="scratch-block" style="background:#22c55e;">시작값 에 1 만큼 더하기 (수정)</div>
+                </div>
+                <div class="scratch-block say">합: 합계 값 을(를) 합친 값 말하기</div>
+            </div>
+        </div>
     </div>
 
 
     <h2>Part 2. 인공지능과 데이터</h2>
 
-    <h3>9. 인공지능과 데이터 핵심 개념</h3>
+    <h3>11. 인공지능과 데이터 핵심 개념과 용어</h3>
     <ol>
         <li><strong><span class="answer">인공지능(AI)</span></strong> : 인간의 지적 능력을 모방하여 소프트웨어로 만드는 것이다.</li>
-        <li><strong><span class="answer">인공지능 모델</span></strong> : 데이터를 학습하여 만들어진 모델로, 분류/예측 등의 작업을 수행한다.</li>
-        <li><strong><span class="answer">인공지능 시스템</span></strong> : 인공지능 소프트웨어를 사용하여 사용자의 목적을 달성해 주는 컴퓨팅 시스템이다.</li>
+        <li><strong><span class="answer">인공지능 모델</span></strong> : 데이터를 학습하여 만들어진 모델로, 이 모델을 이용하여 분류, 예측 등의 작업을 수행한다.</li>
+        <li><strong><span class="answer">인공지능 시스템</span></strong> : 인공지능 소프트웨어를 사용하여 사용자의 요구나 사용 목적 등을 달성해 주는 컴퓨팅 시스템이다.</li>
         <li><strong><span class="answer">학습 데이터</span></strong> : 인공지능의 학습을 위해 입력하는 데이터이다.</li>
-        <li><strong><span class="answer">지능형 에이전트</span></strong> : 외부 환경을 인지하고 판단하여 자율적으로 행동하는 시스템이다.</li>
+        <li><strong><span class="answer">지능형 에이전트</span></strong> : 역동적인 외부 환경을 인지하여 지능적으로 판단하고 의사 결정을 하며, 자율적으로 행동하여 목적을 이루도록 하는 시스템이다.</li>
     </ol>
 
-    <h3>10. 인공지능의 특성과 구별</h3>
+    <h3>12. 인공지능의 특성과 인공지능 구별하기</h3>
+    <p><strong>1) 인공지능의 3대 핵심 특성</strong></p>
     <table>
         <thead>
             <tr>
                 <th style="width: 25%;">특성</th>
-                <th style="width: 75%;">설명</th>
+                <th style="width: 75%;">의미</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><strong>학습</strong></td>
-                <td>데이터를 분석하여 패턴을 인식하고, 모델의 성능을 지속해서 향상시킨다.</td>
+                <td><strong>1) 학습</strong></td>
+                <td>데이터를 분석하여 패턴을 인식하고, 이를 통해 인공지능 모델의 성능을 지속해서 향상시킨다.</td>
             </tr>
             <tr>
-                <td><strong>추론</strong></td>
-                <td>기존 지식을 활용해 새로운 상황에 대한 결론을 도출하거나 예측한다.</td>
+                <td><strong>2) 추론</strong></td>
+                <td>기존의 지식을 활용해 새로운 상황에 대한 결론을 도출하거나 예측하고, 문제를 해결한다.</td>
             </tr>
             <tr>
-                <td><strong>인식</strong></td>
-                <td>입력된 데이터를 해석하여 주변 환경이나 상황을 이해한다.</td>
+                <td><strong>3) 인식</strong></td>
+                <td>입력된 데이터를 해석하여 주변 환경이나 상황을 이해하고, 이를 바탕으로 적절한 판단과 행동을 결정한다.</td>
             </tr>
         </tbody>
     </table>
 
-    <p><strong>💡 인공지능 적용 여부 판별 예시</strong></p>
+    <div class="box">
+        <strong>2) 다음 사례는 인공지능의 어떤 특성에 해당하는지 번호를 쓰시오. [1)학습, 2)추론, 3)인식]</strong><br>
+        • ( <strong><span class="answer">3</span></strong> ) 자율주행 자동차가 센서와 카메라로 입력받은 데이터를 분석해 차량, 신호등, 보행자를 알아본다.<br>
+        • ( <strong><span class="answer">1</span></strong> ) 수많은 개와 고양이 이미지를 보고 두 동물의 특징을 파악한다.<br>
+        • ( <strong><span class="answer">2</span></strong> ) 고양이의 특징을 학습한 뒤, 새로 발견한 작은 동물이 고양이일 가능성을 판단한다.
+    </div>
+
+    <p><strong>3) 인공지능 기술 적용 여부 구별</strong></p>
     <table>
         <thead>
             <tr>
                 <th>대상</th>
+                <th>특성</th>
                 <th>적용 여부</th>
-                <th>이유</th>
+                <th>그렇게 생각한 이유</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>스마트폰 계산기</td>
-                <td><strong>X</strong></td>
-                <td>정해진 수학적 규칙에 따른 단순 계산만 수행</td>
+                <td><strong>스마트폰의 계산기</strong></td>
+                <td>사용자 입력에 즉각 반응하며 수학적 규칙 외 기능 없음</td>
+                <td><span class="answer">X</span></td>
+                <td>수학적 규칙에 따라 단순 계산만 수행함</td>
             </tr>
             <tr>
-                <td>마트 앞 자동문</td>
-                <td><strong>X</strong></td>
-                <td>센서 감지 후 정해진 규칙대로만 동작</td>
+                <td><strong>마트 앞 자동문</strong></td>
+                <td>적외선 센서로 사람을 감지하는 특정 측면만 인식</td>
+                <td><span class="answer">X</span></td>
+                <td>센서 감지 후 정해진 규칙대로만 동작함</td>
             </tr>
             <tr>
-                <td>로봇 청소기</td>
-                <td><strong>O</strong></td>
-                <td>환경을 인식하고 시행착오를 통해 최적 청소 패턴 스스로 생성</td>
+                <td><strong>로봇 청소기</strong></td>
+                <td>주변 환경을 인식해 장애물을 피하고 최적 청소 패턴 생성</td>
+                <td><span class="answer">O</span></td>
+                <td>주변을 인식하고 시행착오를 통해 최적 패턴을 생성하기 때문</td>
             </tr>
             <tr>
-                <td>범용 챗봇</td>
-                <td><strong>O</strong></td>
-                <td>새 정보를 학습하고 질문의 의도를 이해하여 답변 생성</td>
+                <td><strong>범용 챗봇</strong></td>
+                <td>새 정보를 학습하고 질문 의도를 이해하여 적절한 답변 생성</td>
+                <td><span class="answer">O</span></td>
+                <td>새 정보를 학습하고 의도를 파악하여 답변을 생성하기 때문</td>
             </tr>
             <tr>
-                <td>리모컨 제어 로봇</td>
-                <td><strong>X</strong></td>
-                <td>스스로 인식·판단하는 기능이 없음</td>
+                <td><strong>리모컨 제어 로봇</strong></td>
+                <td>리모컨 명령대로만 움직이며 움직임 이외 기능 없음</td>
+                <td><span class="answer">X</span></td>
+                <td>스스로 인식·판단하는 기능이 없기 때문</td>
             </tr>
             <tr>
-                <td>헬스케어 스마트워치</td>
-                <td><strong>O</strong></td>
-                <td>운동량 분석 및 건강 상태 학습을 통한 맞춤형 제안</td>
+                <td><strong>헬스케어 스마트워치</strong></td>
+                <td>운동량을 감지하고 건강 상태를 학습해 맞춤 운동 제안</td>
+                <td><span class="answer">O</span></td>
+                <td>데이터를 분석해 상태를 학습하고 맞춤 솔루션을 제시하기 때문</td>
             </tr>
         </tbody>
     </table>
 
-    <h3>11. 인공지능 시스템 적용 사례 및 문제 해결 과정</h3>
+    <h3>13. 인공지능 시스템의 적용 사례</h3>
     <table>
         <thead>
             <tr>
                 <th style="width: 25%;">구분</th>
-                <th style="width: 35%;">사용 데이터</th>
+                <th style="width: 35%;">사용하는 데이터</th>
                 <th style="width: 40%;">하는 일</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>음성 인식 서비스</strong></td>
-                <td>사용자 목소리 데이터</td>
-                <td>음향 패턴 분석 ➔ 텍스트/명령 변환</td>
+                <td>사용자의 목소리 데이터</td>
+                <td>음향 패턴을 분석하여 텍스트나 실행 가능 명령으로 변환</td>
             </tr>
             <tr>
                 <td><strong>추천 시스템</strong></td>
                 <td>시청 기록, 선호도 등</td>
-                <td>행동/선호 패턴 파악 ➔ 맞춤 콘텐츠 추천</td>
+                <td>행동 및 선호 패턴을 파악해 맞춤형 콘텐츠 예측 추천</td>
             </tr>
             <tr>
                 <td><strong>자동 번역기</strong></td>
-                <td>다국어 방대 텍스트 데이터</td>
-                <td>문맥, 의미, 문법 이해 ➔ 복잡 문장 번역</td>
+                <td>다국어 번역 및 문서 텍스트 데이터</td>
+                <td>문맥과 의미, 문법을 이해하여 복잡한 문장도 번역 제공</td>
             </tr>
         </tbody>
     </table>
 
-    <div class="box" style="text-align: center; font-size: 1.05em;">
-        <strong>[인공지능 문제 해결 과정]</strong><br>
-        문제 ➔ 데이터 ➔ 학습 ➔ 인공지능 모델 ➔ 인공지능 시스템 ➔ 문제 해결
+    <h3>14. 인공지능 시스템의 문제 해결 과정</h3>
+    <p><strong>1) 문제 해결 5단계 절차</strong></p>
+    <div class="box" style="text-align: center; font-size: 1.05rem; font-weight: bold; background: #ebf8ff; border-color: #bee3f8;">
+        문제 &nbsp;➔&nbsp; <span class="answer">데이터</span> &nbsp;➔&nbsp; 학습 &nbsp;➔&nbsp; <span class="answer">인공지능 모델</span> &nbsp;➔&nbsp; 인공지능 시스템 &nbsp;➔&nbsp; 문제 해결
     </div>
 
+    <p><strong>2) 인공지능 모델이 수행하는 작업 유형과 사례</strong></p>
     <table>
         <thead>
             <tr>
-                <th style="width: 25%;">작업 유형</th>
-                <th style="width: 75%;">문제 해결 사례</th>
+                <th style="width: 25%;">구분</th>
+                <th style="width: 75%;">문제해결 사례</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>예측, 분류</strong></td>
-                <td>안구 이미지로 질환 예측, 멸종 위기 동물 분류</td>
+                <td>안구 이미지로 질환을 예측하고, 멸종 위기 동물을 분류한다.</td>
             </tr>
             <tr>
                 <td><strong>군집</strong></td>
-                <td>상품/영화 추천, 유사 특성 고객 구분 마케팅</td>
+                <td>상품, 영화 추천 시스템에 사용하거나 비슷한 특성을 가진 고객을 구분해 마케팅에 활용한다.</td>
             </tr>
             <tr>
                 <td><strong>인식</strong></td>
-                <td>이미지/음성 인식, 번역 시스템, 자율 주행 자동차 인식</td>
+                <td>이미지 인식, 음성 인식, 번역 시스템, 자율 주행 자동차의 인식에 사용한다.</td>
             </tr>
             <tr>
                 <td><strong>생성</strong></td>
-                <td>단어 입력만으로 새로운 그림/이미지 생성</td>
+                <td>‘노을, 강, 배가 있는 풍경’과 같은 단어만으로 그림을 그려주는 인공지능이다.</td>
             </tr>
         </tbody>
     </table>
 
-    <h3>12. 학습 데이터 수집과 전처리</h3>
+    <h3>15. 학습 데이터의 수집과 분류</h3>
+    <p><strong>1) 데이터의 유형 분류</strong></p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">수치 데이터</th>
+                <th style="width: 25%;">이미지 데이터</th>
+                <th style="width: 25%;">소리 데이터</th>
+                <th style="width: 25%;">텍스트 데이터</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>• 연도별 연평균 기온<br>• 강수량(mm)<br>• 습도(%)</td>
+                <td>• 강아지 사진<br>• 고양이 얼굴 사진</td>
+                <td>• 아기 울음소리 녹음<br>• 사람 목소리 녹음 파일</td>
+                <td>• 영화 댓글 ("재밌어요!")<br>• 챗봇 대화 문장<br>• 뉴스 기사 문장</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><strong>2) 데이터 수집 및 정제 용어</strong></p>
     <ol>
-        <li>데이터 유형: <strong>수치 데이터</strong>(기온, 습도), <strong>이미지 데이터</strong>(사진), <strong>소리 데이터</strong>(녹음), <strong>텍스트 데이터</strong>(댓글, 문장)</li>
-        <li>수치 데이터에서 비어 있는 수치를 <strong><span class="answer">결측치</span></strong>, 정상 범위를 벗어난 수치를 <strong><span class="answer">이상치</span></strong>라고 한다.</li>
-        <li>불필요하거나 중복된 데이터를 제외하여 정제하는 작업을 <strong><span class="answer">데이터 전처리</span></strong>라고 한다.</li>
+        <li>수치 데이터에서 비어 있는 수치를 ( <strong><span class="answer">결측</span></strong> )치, 정상 범위를 벗어난 수치를 ( <strong><span class="answer">이상</span></strong> )치라고 한다.</li>
+        <li>불필요하거나 중복된 데이터를 제외하는 등 학습 데이터로 사용하기 위해 정제하는 작업을 ( <strong><span class="answer">데이터 전처리</span></strong> ) 작업이라고 한다.</li>
     </ol>
 
     <div class="box">
-        <strong>💡 데이터 수집 시 유의점:</strong><br>
-        • 대상이 사진 속에 뚜렷하게 드러나는 데이터를 모은다.<br>
-        • 정확한 라벨(신선함, 상함 등)을 분류하여 붙인다.<br>
-        • 데이터 개수를 클래스별로 균등하고 충분하게 모은다.<br>
-        • 개인정보가 담긴 데이터는 제외한다.
+        <strong>3) 신선한 과일 및 상한 과일 데이터 수집 시 유의점 4가지:</strong><br>
+        ① 과일이 사진 속에 뚜렷하게 드러나는 사진을 모은다.<br>
+        ② '신선함', '상함'을 올바르게 붙여서 분류(라벨링)한다.<br>
+        ③ 신선한 과일과 상한 과일의 이미지 수를 비슷하게 충분히 모은다.<br>
+        ④ 개인정보가 담긴 사진은 제외한다.
     </div>
 
 </body>
