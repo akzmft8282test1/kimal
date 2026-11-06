@@ -170,7 +170,7 @@
         .node-io span { display: inline-block; transform: skewX(12deg); }
         .flow-arrow { font-size: 0.8rem; color: #64748b; margin: -2px 0; }
 
-        /* 🚀 엔트리(Entry) 블록 코딩 완벽 재현 CSS */
+        /* 🚀 엔트리(Entry) 블록 코딩 완벽 재현 CSS (반복문 디자인 픽스) */
         .entry-workspace {
             display: flex;
             flex-wrap: wrap;
@@ -183,8 +183,8 @@
             min-width: 380px;
             background: #ffffff;
             border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
@@ -199,19 +199,19 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             font-weight: bold;
             color: #ffffff;
             user-select: none;
         }
 
-        /* 공통 블록 쉐이프 */
+        /* 공통 단일 블록 */
         .e-block {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 12px;
-            border-radius: 18px;
+            padding: 6px 14px;
+            border-radius: 20px;
             margin-bottom: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.12);
             position: relative;
@@ -220,8 +220,8 @@
 
         .e-start {
             background-color: #30b42c;
-            border-radius: 20px 20px 18px 18px;
-            padding-left: 8px;
+            border-radius: 22px;
+            padding-left: 10px;
         }
 
         .e-start-play {
@@ -239,7 +239,7 @@
 
         .e-purple { background-color: #a333c8; }
         .e-pink { background-color: #e0398e; }
-        .e-red { background-color: #e53935; border-radius: 18px 6px 6px 18px; }
+        .e-red { background-color: #e53935; border-radius: 20px; }
 
         /* 인라인 캡슐 & 드롭다운 */
         .e-capsule {
@@ -277,51 +277,67 @@
             margin-left: 4px;
         }
 
-        /* C자형 반복문(C-Block) 컨테이너 */
-        .e-c-block {
+        /* 🎯 [수정된 부분] C자형 반복문(Entry C-Block) 정밀 고품질 디스플레이 */
+        .e-c-wrapper {
             display: flex;
-            flex-direction: column;
-            width: 100%;
+            position: relative;
+            margin-bottom: 2px;
+            align-items: stretch;
         }
 
-        .e-c-header {
+        /* 왼쪽 C자 연결 기둥 (하늘색 세로선) */
+        .e-c-spine {
+            width: 16px;
             background-color: #00b0ff;
-            border-radius: 18px 18px 4px 4px;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            flex-shrink: 0;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .e-c-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 반복 상단 머리 블록 */
+        .e-c-top {
+            background-color: #00b0ff;
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 12px;
+            padding: 6px 14px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.12);
             width: fit-content;
+            border-bottom-left-radius: 4px;
         }
 
-        .e-c-body {
-            border-left: 14px solid #00b0ff;
-            padding-left: 8px;
-            margin-left: 8px;
+        /* 반복 내부 콘텐츠 슬롯 (들여쓰기 영역) */
+        .e-c-content {
+            padding: 5px 0 5px 10px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            padding-top: 3px;
-            padding-bottom: 3px;
+            gap: 3px;
         }
 
-        .e-c-footer {
+        /* 반복 하단 발 블록 */
+        .e-c-bottom {
             background-color: #00b0ff;
-            height: 10px;
-            width: 70px;
-            border-radius: 0 0 8px 8px;
-            margin-left: 8px;
-            margin-bottom: 2px;
+            height: 12px;
+            width: 60px;
+            border-radius: 0 0 10px 10px;
+            border-top-left-radius: 4px;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
 
         .e-loop-icon {
             font-size: 11px;
             margin-left: 4px;
-            background: rgba(255,255,255,0.25);
-            padding: 1px 5px;
-            border-radius: 8px;
+            background: rgba(255,255,255,0.3);
+            padding: 2px 6px;
+            border-radius: 10px;
         }
 
         @media print {
@@ -552,7 +568,7 @@
         </table>
 
         <table style="flex: 1; min-width: 240px;">
-            <thead><tr><th colspan="3" style="text-align:center; background:#fef3c7;">논리합 (OR, 또는)</th></tr><tr><th>입력 A</th><th>입력 B</th><th>출력 (A 또는 B)</th></tr></thead>
+            <thead><tr><th colspan="3" style="text-align:center; background:#fef3c7;">논리합 (OR, 또는)</th></tr><tr><th>입력 A</th><th>출력 (A 또는 B)</th><th>입력 B</th></tr></thead>
             <tbody>
                 <tr><td>참</td><td>참</td><td><span class="answer">참</span></td></tr>
                 <tr><td>참</td><td>거짓</td><td><span class="answer">참</span></td></tr>
@@ -587,7 +603,7 @@
         <strong>[프로그램 설명]</strong> 임의의 수 N을 입력받아 1부터 N까지의 합을 구하는 프로그램이다. (변수: 시작 값, 종료 값, 합계)
     </div>
 
-    <!-- 🎯 10번 디버깅 블록 코딩 엔트리 UI 완벽 재현 -->
+    <!-- 🎯 10번 디버깅 블록 코딩 엔트리 UI 완벽 재현 (반복문 C-Block 디자인 보정) -->
     <div class="entry-workspace">
         <!-- ❌ 오류 코드 -->
         <div class="entry-column">
@@ -622,32 +638,35 @@
                     <span class="e-help-icon">?</span>
                 </div>
                 
-                <!-- 반복문 구조 -->
-                <div class="e-c-block">
-                    <div class="e-c-header">
-                        <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
-                        <span class="e-capsule pink-cap">값</span>
-                        <span>번 반복하기</span>
-                        <span class="e-loop-icon">⟳</span>
-                    </div>
-                    <div class="e-c-body">
-                        <div class="e-block e-purple">
-                            <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
-                            <span>에</span>
-                            <span class="e-capsule yellow">1</span>
-                            <span>만큼 더하기</span>
-                            <span class="e-help-icon">?</span>
-                        </div>
-                        <div class="e-block e-purple">
-                            <span class="e-capsule purple-cap">합계 <span class="e-dropdown-arrow">▼</span></span>
-                            <span>에</span>
-                            <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                <!-- 🛠️ 반복문 래퍼 (기둥과 상하단 완벽 정렬) -->
+                <div class="e-c-wrapper">
+                    <div class="e-c-spine"></div>
+                    <div class="e-c-main">
+                        <div class="e-c-top">
+                            <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
                             <span class="e-capsule pink-cap">값</span>
-                            <span>만큼 더하기</span>
-                            <span class="e-help-icon">?</span>
+                            <span>번 반복하기</span>
+                            <span class="e-loop-icon">⟳</span>
                         </div>
+                        <div class="e-c-content">
+                            <div class="e-block e-purple">
+                                <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                                <span>에</span>
+                                <span class="e-capsule yellow">1</span>
+                                <span>만큼 더하기</span>
+                                <span class="e-help-icon">?</span>
+                            </div>
+                            <div class="e-block e-purple">
+                                <span class="e-capsule purple-cap">합계 <span class="e-dropdown-arrow">▼</span></span>
+                                <span>에</span>
+                                <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                                <span class="e-capsule pink-cap">값</span>
+                                <span>만큼 더하기</span>
+                                <span class="e-help-icon">?</span>
+                            </div>
+                        </div>
+                        <div class="e-c-bottom"></div>
                     </div>
-                    <div class="e-c-footer"></div>
                 </div>
 
                 <div class="e-block e-red">
@@ -692,32 +711,35 @@
                     <span class="e-help-icon">?</span>
                 </div>
                 
-                <!-- 디버깅 반복문 (순서 바뀜 반영) -->
-                <div class="e-c-block">
-                    <div class="e-c-header">
-                        <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
-                        <span class="e-capsule pink-cap">값</span>
-                        <span>번 반복하기</span>
-                        <span class="e-loop-icon">⟳</span>
-                    </div>
-                    <div class="e-c-body">
-                        <div class="e-block e-purple">
-                            <span class="e-capsule purple-cap">합계 <span class="e-dropdown-arrow">▼</span></span>
-                            <span>에</span>
-                            <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                <!-- 🛠️ 디버깅 반복문 래퍼 -->
+                <div class="e-c-wrapper">
+                    <div class="e-c-spine"></div>
+                    <div class="e-c-main">
+                        <div class="e-c-top">
+                            <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
                             <span class="e-capsule pink-cap">값</span>
-                            <span>만큼 더하기</span>
-                            <span class="e-help-icon">?</span>
+                            <span>번 반복하기</span>
+                            <span class="e-loop-icon">⟳</span>
                         </div>
-                        <div class="e-block e-purple">
-                            <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
-                            <span>에</span>
-                            <span class="e-capsule yellow">1</span>
-                            <span>만큼 더하기</span>
-                            <span class="e-help-icon">?</span>
+                        <div class="e-c-content">
+                            <div class="e-block e-purple">
+                                <span class="e-capsule purple-cap">합계 <span class="e-dropdown-arrow">▼</span></span>
+                                <span>에</span>
+                                <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                                <span class="e-capsule pink-cap">값</span>
+                                <span>만큼 더하기</span>
+                                <span class="e-help-icon">?</span>
+                            </div>
+                            <div class="e-block e-purple">
+                                <span class="e-capsule purple-cap">시작값 <span class="e-dropdown-arrow">▼</span></span>
+                                <span>에</span>
+                                <span class="e-capsule yellow">1</span>
+                                <span>만큼 더하기</span>
+                                <span class="e-help-icon">?</span>
+                            </div>
                         </div>
+                        <div class="e-c-bottom"></div>
                     </div>
-                    <div class="e-c-footer"></div>
                 </div>
 
                 <div class="e-block e-red">
