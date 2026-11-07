@@ -33,7 +33,20 @@
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             background: #fff;
+            margin-bottom: 12px;
         }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #2563eb; }
         .preview {
             margin-top: 15px;
             padding: 15px;
@@ -41,6 +54,13 @@
             border-radius: 6px;
             font-size: 1.2rem;
             border-left: 4px solid #3b82f6;
+        }
+        .success-msg {
+            margin-top: 10px;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: none;
         }
     </style>
 </head>
@@ -54,6 +74,9 @@
             <option value="">-- 기본 시스템 폰트 --</option>
         </select>
         
+        <button class="btn" onclick="saveFontSetting()">💾 저장하기</button>
+        <div class="success-msg" id="successMsg">✅ 세션에 폰트 설정이 안전하게 저장되었습니다!</div>
+
         <div class="preview" id="previewText">
             미리보기 텍스트: 가나다라마바사 아자차카타파하 ABC 123
         </div>
@@ -61,7 +84,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // 서버 API를 통해 루트 폴더의 폰트 리스트를 가져옴
+        // 1. 서버 API를 통해 루트 폴더의 폰트 리스트를 가져옴
         fetch('/api/fonts-list')
             .then(res => res.json())
             .then(fonts => {
@@ -69,7 +92,6 @@
                 let fontFaceCSS = '';
 
                 fonts.forEach(font => {
-                    // 1. 동적으로 @font-face 생성
                     fontFaceCSS += `
                         @font-face {
                             font-family: '${font.name}';
@@ -79,32 +101,52 @@
                         }
                     `;
 
-                    // 2. 드롭다운 옵션 추가
                     const option = document.createElement('option');
                     option.value = font.name;
                     option.textContent = font.name;
                     select.appendChild(option);
                 });
 
-                // 문서에 @font-face 스타일 주입
                 document.getElementById('dynamic-font-face').innerHTML = fontFaceCSS;
-                console.log("폰트 로드 완료:", fonts);
+
+                // 2. 이미 세션에 저장된 폰트가 있다면 불러와서 적용
+                const savedFont = sessionStorage.getItem('selected_global_font');
+                if (savedFont) {
+                    select.value = savedFont;
+                    applyFontToElements(savedFont);
+                }
             })
             .catch(err => console.error("폰트 목록 불러오기 실패:", err));
     });
 
-    // 폰트 선택 시 실시간 전체 적용 함수
+    // 드롭다운 변경 시 실시간 미리보기 적용
     function changeGlobalFont() {
         const selectedFont = document.getElementById('fontSelect').value;
-        const preview = document.getElementById('previewText');
+        applyFontToElements(selectedFont);
+    }
 
-        if (selectedFont) {
-            document.body.style.fontFamily = `'${selectedFont}', sans-serif`;
-            preview.style.fontFamily = `'${selectedFont}', sans-serif`;
+    // 실제 요소들에 폰트 스타일을 적용하는 공통 함수
+    function applyFontToElements(fontName) {
+        const preview = document.getElementById('previewText');
+        if (fontName) {
+            document.body.style.fontFamily = `'${fontName}', sans-serif`;
+            preview.style.fontFamily = `'${fontName}', sans-serif`;
         } else {
             document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif';
             preview.style.fontFamily = '';
         }
+    }
+
+    // 💾 저장 버튼 클릭 시 sessionStorage에 기록
+    function saveFontSetting() {
+        const selectedFont = document.getElementById('fontSelect').value;
+        sessionStorage.setItem('selected_global_font', selectedFont);
+
+        const msg = document.getElementById('successMsg');
+        msg.style.display = 'block';
+        setTimeout(() => {
+            msg.style.display = 'none';
+        }, 2500);
     }
 </script>
 
