@@ -78,6 +78,10 @@
     <h1>📝 정보 모의평가 기말대비 출력 센터</h1>
     <div class="desc">웹사이트 본래의 레이아웃과 테이블 스타일 그대로 깨짐 없는 고해상도 PDF 출력이 가능합니다.</div>
 
+    <div style="text-align: right; margin-bottom: 15px;">
+        <button class="btn" style="background:#718096; color:white;" onclick="location.href='/moui'">👈 모의고사 풀이 화면으로 돌아가기</button>
+    </div>
+
     <div class="section-title">Ⅰ. 회차별 모의평가 컴파일 팩 (서버 가상 인쇄)</div>
     <div class="exam-row">
         <div class="exam-info">
@@ -151,6 +155,23 @@
         return arr;
     }
 
+    // 모의고사 화면과 동일한 세션 셔플 데이터를 공유하여 다운로드 버튼을 눌러도 순서가 변하지 않음
+    function getShuffledOptions(examNum, qId, originalOptions, originalAnsText) {
+        const storageKey = `shuffled_${examNum}_${qId}`;
+        const saved = sessionStorage.getItem(storageKey);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            const newAnsIndex = parsed.indexOf(originalAnsText) + 1;
+            return { shuffledOptions: parsed, newAnswerIndex: newAnsIndex };
+        }
+
+        // 혹시 세션에 없다면 새로 섞어서 저장 후 고정
+        const shuffled = shuffleArray(originalOptions);
+        sessionStorage.setItem(storageKey, JSON.stringify(shuffled));
+        const newAnsIndex = shuffled.indexOf(originalAnsText) + 1;
+        return { shuffledOptions: shuffled, newAnswerIndex: newAnsIndex };
+    }
+
     function downloadActivityPDF(target) {
         const printZone = document.getElementById('print-rendering-zone');
         printZone.style.display = 'block';
@@ -215,7 +236,7 @@
             
             currentExamObj.choice.forEach(q => {
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
-                const shuffledOptions = shuffleArray(q.options);
+                const { shuffledOptions } = getShuffledOptions(examNum, q.id, q.options, originalCorrectText);
                 const optLines = shuffledOptions.map((o, idx) => `<li>${idx + 1}. ${o.replace(/^[①-④]\s*/, '')}</li>`).join('');
                 
                 buildHtml += `<div style="border:1px solid #cbd5e1; padding:12px; margin-bottom:12px; border-radius:6px; page-break-inside:avoid;"><div style="font-weight:bold; margin-bottom:8px;">${q.question}</div><ul style="list-style:none; padding-left:5px; margin:5px 0;">${optLines}</ul></div>`;
@@ -231,8 +252,7 @@
             
             currentExamObj.choice.forEach(q => {
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
-                const shuffledOptions = shuffleArray(q.options);
-                const newAnswerIndex = shuffledOptions.findIndex(opt => opt === originalCorrectText) + 1;
+                const { newAnswerIndex } = getShuffledOptions(examNum, q.id, q.options, originalCorrectText);
                 
                 buildHtml += `<tr><td style="border:1px solid #cbd5e1; padding:9px; text-align:center;"><strong>${q.id}</strong></td><td style="border:1px solid #cbd5e1; padding:9px; text-align:center; color:#e74c3c; font-weight:bold;">${newAnswerIndex}번</td><td style="border:1px solid #cbd5e1; padding:9px; text-align:left; padding-left:10px;">${q.feedback || '출제 기준 답안 명시'}</td></tr>`;
             });
