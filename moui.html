@@ -59,8 +59,7 @@
 
         <div class="btn-group">
             <button type="button" class="btn btn-submit" onclick="gradeExam()">✏️ 모의고사 결과 채점 및 피드백 받기</button>
-            <button type="button" class="btn btn-pdf" onclick="generateServerPDF('question')">📄 현재 회차 문제지 (PDF)</button>
-            <button type="button" class="btn btn-ans" onclick="generateServerPDF('answer')">✨ 현재 회차 정답지 (PDF)</button>
+            <button type="button" class="btn btn-pdf" onclick="location.href='/download'">📄 인쇄 및 다운로드 센터 이동</button>
         </div>
     </form>
 </div>
@@ -69,11 +68,15 @@
     let examData = {};
     let currentExam = '1';
 
+    // 💡 페이지 로드(새로고침) 시점에만 딱 한 번 새로운 셔플 데이터를 세션에 강제 갱신합니다.
     document.addEventListener("DOMContentLoaded", () => {
+        // 새로고침 감지를 위해 sessionStorage에 새로고침 플래그 또는 세션 키 초기화 수행 가능
         fetch('/api/exam-data')
             .then(res => res.json())
             .then(data => {
                 examData = data;
+                // 페이지 진입/새로고침 시 해당 세션의 문제 보기 순서를 새로 랜덤 세팅
+                prepareSessionShuffles(data);
                 renderQuestions();
             })
             .catch(err => {
@@ -82,15 +85,6 @@
             });
     });
 
-    function switchExam(num) {
-        currentExam = num;
-        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
-            btn.classList.toggle('active', (idx + 1).toString() === num);
-        });
-        document.getElementById('score-board').style.display = 'none';
-        renderQuestions();
-    }
-
     function shuffleArray(array) {
         const arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -98,6 +92,27 @@
             [arr[i], arr[j]] = [arr[j], arr[i]];
         }
         return arr;
+    }
+
+    // 새로고침/첫 로딩 때만 회차별 보기 셔플을 새로 생성하여 저장
+    function prepareSessionShuffles(data) {
+        for (let examNum in data) {
+            if (data[examNum].choice) {
+                data[examNum].choice.forEach(q => {
+                    const shuffled = shuffleArray(q.options);
+                    sessionStorage.setItem(`shuffled_${examNum}_${q.id}`, JSON.stringify(shuffled));
+                });
+            }
+        }
+    }
+
+    function switchExam(num) {
+        currentExam = num;
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', (idx + 1).toString() === num);
+        });
+        document.getElementById('score-board').style.display = 'none';
+        renderQuestions();
     }
 
     function renderQuestions() {
@@ -112,8 +127,9 @@
             activeData.choice.forEach(q => {
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
                 
-                // 새로고침할 때마다 매번 새롭게 무작위 셔플 실행
-                const shuffledOptions = shuffleArray(q.options);
+                // 로딩 시점에 만들어둔 세션 셔플 데이터를 불러옴 (다운로드 센터와 완벽 동기화)
+                const savedShuffled = sessionStorage.getItem(`shuffled_${currentExam}_${q.id}`);
+                const shuffledOptions = savedShuffled ? JSON.parse(savedShuffled) : shuffleArray(q.options);
                 const newAnswerIndex = shuffledOptions.findIndex(opt => opt === originalCorrectText) + 1;
 
                 let optionsHtml = '';
@@ -204,10 +220,6 @@
         `;
         board.style.display = 'block';
         board.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function generateServerPDF(type) {
-        location.href = '/download';
     }
 </script>
 
