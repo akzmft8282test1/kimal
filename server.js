@@ -44,19 +44,21 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [개선된 루트 폴더 폰트 자동 스캔 API (/api/fonts-list)]
+// 🎨 [디버깅 로그가 추가된 폰트 스캔 API (/api/fonts-list)]
 // =======================================================
 app.get('/api/fonts-list', (req, res) => {
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
     try {
+        console.log("🔍 현재 서버 스캔 디렉토리:", __dirname);
         const files = fs.readdirSync(__dirname);
+        console.log("📂 디렉토리 내 전체 파일 목록:", files);
+
         files.forEach((file, index) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
-                // 보기 좋게 파일명 정리 (확장자 제거 및 특수문자 정돈)
-                const cleanName = path.basename(file, ext).replace(/[_._]/g, ' ');
+                const cleanName = path.basename(file, ext).replace(/[_._]/g, ' ').trim();
                 let formatStr = 'truetype';
                 if (ext === '.otf') formatStr = 'opentype';
                 else if (ext === '.woff2') formatStr = 'woff2';
@@ -64,7 +66,7 @@ app.get('/api/fonts-list', (req, res) => {
 
                 fontsList.push({
                     id: `font_${index}`,
-                    name: cleanName,
+                    name: cleanName || `Font_${index}`,
                     filename: file,
                     ext: ext.replace('.', ''),
                     format: formatStr,
@@ -72,8 +74,9 @@ app.get('/api/fonts-list', (req, res) => {
                 });
             }
         });
+        console.log(`✨ 인식된 폰트 파일 개수: ${fontsList.length}개`, fontsList);
     } catch (e) {
-        console.error("폰트 디렉토리 스캔 오류:", e);
+        console.error("❌ 폰트 디렉토리 스캔 오류:", e);
     }
 
     res.json(fontsList);
