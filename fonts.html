@@ -90,7 +90,7 @@
             margin-top: 10px;
         }
         .nav-links { text-align: right; margin-bottom: 20px; }
-        #debug-status { font-size: 0.85rem; color: #e74c3c; margin-bottom: 15px; font-weight: bold; }
+        #debug-status { font-size: 0.9rem; color: #2980b9; margin-bottom: 15px; font-weight: bold; padding: 10px; background: #eaf2f8; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -104,7 +104,7 @@
     <h1>🎛️ 폰트 관리 및 실시간 적용 GUI 대시보드</h1>
     <div class="desc">루트 폴더에 업로드된 폰트 파일들을 자동으로 감지하여, 전체 텍스트 또는 특정 CSS 요소별 폰트를 자유롭게 지정할 수 있습니다.</div>
 
-    <div id="debug-status">서버와 통신 중...</div>
+    <div id="debug-status">🔄 서버와 통신 중... 잠시만 기다려주세요.</div>
 
     <!-- 1. 전체 글꼴 일괄 변경 제어판 -->
     <div class="section">
@@ -150,20 +150,28 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const debugStatus = document.getElementById('debug-status');
+        
         fetch('/api/fonts-list')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("서버 응답 오류 (HTTP " + res.status + ")");
+                return res.json();
+            })
             .then(fonts => {
                 availableFonts = fonts;
-                debugStatus.textContent = `✅ 폰트 스캔 완료: 총 ${fonts.length개의 폰트가 감지되었습니다.}`;
-                if(fonts.length === 0) {
-                    debugStatus.textContent = "⚠️ 폰트 파일을 찾지 못했습니다. 루트 폴더에 .ttf/.otf 파일이 있는지 확인하세요.";
+                if(fonts.length > 0) {
+                    debugStatus.style.color = "#27ae60";
+                    debugStatus.textContent = `✅ 폰트 스캔 성공: 총 ${fonts.length}개의 폰트가 감지되었습니다. (${fonts.map(f=>f.name).join(', ')})`;
+                } else {
+                    debugStatus.style.color = "#e67e22";
+                    debugStatus.textContent = "⚠️ 폰트 파일을 찾지 못했습니다. 루트 폴더에 .ttf / .otf 파일이 있는지 확인해 주세요.";
                 }
                 buildFontFaceStyles(fonts);
                 populateDropdowns(fonts);
                 loadSavedSettings();
             })
             .catch(err => {
-                debugStatus.textContent = "❌ 폰트 목록 로드 실패: " + err.message;
+                debugStatus.style.color = "#c0392b";
+                debugStatus.textContent = "❌ 폰트 목록 로드 실패: " + err.message + " (서버가 실행 중인지 확인하세요)";
             });
     });
 
@@ -187,7 +195,7 @@
         const selectorSelect = document.getElementById('selector-font-select');
 
         fonts.forEach(f => {
-            const opt1 = document.createElement('option');
+            const opt1 = document.option ? document.createElement('option') : document.createElement('option');
             opt1.value = f.name;
             opt1.textContent = `${f.name} (${f.ext.toUpperCase()})`;
             globalSelect.appendChild(opt1);
