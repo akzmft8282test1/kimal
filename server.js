@@ -23,7 +23,6 @@ app.get('/api/fonts-list', (req, res) => {
         files.forEach((file, index) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
-                // 확장자를 제외한 순수 파일명을 폰트 이름으로 사용
                 const fontName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
                 let format = 'truetype';
                 if (ext === '.otf') format = 'opentype';
@@ -44,7 +43,41 @@ app.get('/api/fonts-list', (req, res) => {
     res.json(fontsList);
 });
 
-// 3. 개별 폰트 파일 직접 서빙 (루트 경로에 있는 폰트 파일 매핑)
+// 3. 🎨 모든 페이지에서 공통으로 로드할 수 있는 전역 폰트 @font-face CSS 라우트
+app.get('/global-font.css', (req, res) => {
+    res.setHeader('Content-Type', 'text/css');
+    const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
+    let css = '';
+
+    try {
+        const files = fs.readdirSync(__dirname);
+        files.forEach(file => {
+            const ext = path.extname(file).toLowerCase();
+            if (fontExtensions.includes(ext)) {
+                const fontName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
+                let format = 'truetype';
+                if (ext === '.otf') format = 'opentype';
+                else if (ext === '.woff2') format = 'woff2';
+                else if (ext === '.woff') format = 'woff';
+
+                css += `
+                @font-face {
+                    font-family: '${fontName}';
+                    src: url('/${encodeURIComponent(file)}') format('${format}');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                `;
+            }
+        });
+    } catch (err) {
+        console.error("전역 폰트 CSS 생성 오류:", err);
+    }
+
+    res.send(css);
+});
+
+// 4. 개별 폰트 파일 직접 서빙 (루트 경로에 있는 폰트 파일 매핑)
 app.get('/:fontFile', (req, res, next) => {
     const fontFile = req.params.fontFile;
     const ext = path.extname(fontFile).toLowerCase();
