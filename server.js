@@ -44,44 +44,43 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [완전 동기화 및 멈춤 방지 폰트 스캔 API (/api/fonts-list)]
+// 🎨 [확실하게 작동하는 폰트 스캔 API]
 // =======================================================
 app.get('/api/fonts-list', (req, res) => {
-    console.log("📥 [API 요청 감지] /api/fonts-list 호출됨");
+    console.log("📥 /api/fonts-list API 호출됨");
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
     try {
-        // 동기식으로 안전하게 루트 폴더 읽기 (블로킹 방지 및 즉시 응답)
-        const files = fs.readdirSync(__dirname);
-        console.log(`📁 루트 폴더 내 파일 총 ${files.length}개 발견`);
+        if (fs.existsSync(__dirname)) {
+            const files = fs.readdirSync(__dirname);
+            files.forEach((file, index) => {
+                const ext = path.extname(file).toLowerCase();
+                if (fontExtensions.includes(ext)) {
+                    const cleanName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
+                    let formatStr = 'truetype';
+                    if (ext === '.otf') formatStr = 'opentype';
+                    else if (ext === '.woff2') formatStr = 'woff2';
+                    else if (ext === '.woff') formatStr = 'woff';
 
-        files.forEach((file, index) => {
-            const ext = path.extname(file).toLowerCase();
-            if (fontExtensions.includes(ext)) {
-                const cleanName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
-                let formatStr = 'truetype';
-                if (ext === '.otf') formatStr = 'opentype';
-                else if (ext === '.woff2') formatStr = 'woff2';
-                else if (ext === '.woff') formatStr = 'woff';
-
-                fontsList.push({
-                    id: `font_${index}`,
-                    name: cleanName || `Font_${index}`,
-                    filename: file,
-                    ext: ext.replace('.', ''),
-                    format: formatStr,
-                    url: `/font-file/${encodeURIComponent(file)}`
-                });
-            }
-        });
-        console.log(`✨ 유효한 폰트 파일 ${fontsList.length}개 반환 준비 완료`);
+                    fontsList.push({
+                        id: `font_${index}`,
+                        name: cleanName || `Font_${index}`,
+                        filename: file,
+                        ext: ext.replace('.', ''),
+                        format: formatStr,
+                        url: `/font-file/${encodeURIComponent(file)}`
+                    });
+                }
+            });
+        }
+        console.log(`✨ 폰트 스캔 완료: ${fontsList.length}개 발견`);
     } catch (e) {
-        console.error("❌ 폰트 디렉토리 스캔 중 에러 발생:", e);
+        console.error("❌ 폰트 스캔 에러:", e);
     }
 
-    // 무조건 JSON 응답을 반환하여 브라우저가 대기 상태에 빠지지 않도록 보장
-    return res.json(fontsList);
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return res.status(200).json(fontsList);
 });
 
 // 💡 개별 폰트 파일 서빙 라우트
