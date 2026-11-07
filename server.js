@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // exam_data.json 파일 로드 안전 조치
@@ -30,6 +31,62 @@ app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.h
 // 📊 프론트엔드 데이터 싱크 API
 app.get('/api/exam-data', (req, res) => {
     res.json(examData);
+});
+
+// =======================================================
+// 🎨 [전체 폴더 폰트 자동 적용 라우트 (/fonts)]
+// =======================================================
+app.get('/fonts', (req, res) => {
+    res.setHeader('Content-Type', 'text/css');
+    
+    const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
+    let fontCss = '';
+    
+    // 서버 루트 디렉토리 스캔
+    try {
+        const files = fs.readdirSync(__dirname);
+        files.forEach(file => {
+            const ext = path.extname(file).toLowerCase();
+            if (fontExtensions.includes(ext)) {
+                const fontName = path.basename(file, ext);
+                // URL 엔코딩 처리
+                const fontUrl = `/${encodeURIComponent(file)}`;
+                
+                fontCss += `
+                @font-face {
+                    font-family: 'CustomFont';
+                    src: url('${fontUrl}') format('${ext === '.otf' ? 'opentype' : ext === '.woff2' ? 'woff2' : ext === '.woff' ? 'woff' : 'truetype'}');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                `;
+            }
+        });
+    } catch (e) {
+        console.error("폰트 디렉토리 스캔 오류:", e);
+    }
+
+    // 전체 문서에 폰트 일괄 적용
+    fontCss += `
+    body, html, button, input, select, textarea, th, td {
+        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif !important;
+    }
+    `;
+
+    res.send(fontCss);
+});
+
+// 개별 폰트 파일 직접 서빙 라우트 (루트 디렉토리 폰트 파일 매핑)
+app.get('/:fontFile', (req, res, next) => {
+    const fontFile = req.params.fontFile;
+    const ext = path.extname(fontFile).toLowerCase();
+    if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
+        const targetPath = path.join(__dirname, fontFile);
+        if (fs.existsSync(targetPath)) {
+            return res.sendFile(targetPath);
+        }
+    }
+    next();
 });
 
 // =======================================================
