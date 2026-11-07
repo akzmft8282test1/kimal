@@ -28,59 +28,53 @@ app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html'))
 app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
 app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
 
+// 🎛️ [/fonts 접속시 폰트 대시보드 GUI 페이지 반환]
+app.get('/fonts', (req, res) => {
+    const fontsHtmlPath = path.join(__dirname, 'fonts.html');
+    if (fs.existsSync(fontsHtmlPath)) {
+        res.sendFile(fontsHtmlPath);
+    } else {
+        res.status(404).send("fonts.html 대시보드 파일이 서버 루트 폴더에 존재하지 않습니다.");
+    }
+});
+
 // 📊 프론트엔드 데이터 싱크 API
 app.get('/api/exam-data', (req, res) => {
     res.json(examData);
 });
 
 // =======================================================
-// 🎨 [루트 폴더 폰트 자동 스캔 및 /fonts 라우트]
+// 🎨 [루트 폴더 폰트 자동 스캔 API (/api/fonts-list)]
 // =======================================================
-app.get('/fonts', (req, res) => {
-    res.setHeader('Content-Type', 'text/css');
-    
+app.get('/api/fonts-list', (req, res) => {
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
-    let fontCss = '';
-    
+    let fontsList = [];
+
     try {
-        // 서버 루트 폴더 내의 파일들을 읽어들임
         const files = fs.readdirSync(__dirname);
         files.forEach(file => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
-                // 확장자를 제외한 파일명을 폰트 패밀리 이름으로 사용 (예: NanumGothic.ttf -> 'NanumGothic')
                 const fontName = path.basename(file, ext);
-                const fontUrl = `/${encodeURIComponent(file)}`;
-                
                 let formatStr = 'truetype';
                 if (ext === '.otf') formatStr = 'opentype';
                 else if (ext === '.woff2') formatStr = 'woff2';
                 else if (ext === '.woff') formatStr = 'woff';
 
-                // 각 폰트마다 개별 @font-face 생성 (원하는 폰트명으로 지정 가능)
-                fontCss += `
-                @font-face {
-                    font-family: '${fontName}';
-                    src: url('${fontUrl}') format('${formatStr}');
-                    font-weight: normal;
-                    font-style: normal;
-                }
-                `;
+                fontsList.push({
+                    name: fontName,
+                    filename: file,
+                    ext: ext.replace('.', ''),
+                    format: formatStr,
+                    url: `/${encodeURIComponent(file)}`
+                });
             }
         });
     } catch (e) {
         console.error("폰트 디렉토리 스캔 오류:", e);
     }
 
-    // 기본 전체 적용 및 유틸리티 클래스 제공
-    fontCss += `
-    /* 기본 바디에 첫 번째로 스캔된 폰트 자동 지정 (원하는 경우 아래에서 수정 가능) */
-    body, html, button, input, select, textarea, th, td {
-        font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
-    }
-    `;
-
-    res.send(fontCss);
+    res.json(fontsList);
 });
 
 // 개별 폰트 파일 직접 서빙 라우트
