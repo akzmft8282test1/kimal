@@ -44,17 +44,15 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [디버깅 로그가 추가된 폰트 스캔 API (/api/fonts-list)]
+// 🎨 [안전한 비동기 폰트 스캔 API (/api/fonts-list)]
 // =======================================================
-app.get('/api/fonts-list', (req, res) => {
+app.get('/api/fonts-list', async (req, res) => {
+    console.log("📥 /api/fonts-list 요청이 들어왔습니다.");
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
     try {
-        console.log("🔍 현재 서버 스캔 디렉토리:", __dirname);
-        const files = fs.readdirSync(__dirname);
-        console.log("📂 디렉토리 내 전체 파일 목록:", files);
-
+        const files = await fs.promises.readdir(__dirname);
         files.forEach((file, index) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
@@ -74,9 +72,9 @@ app.get('/api/fonts-list', (req, res) => {
                 });
             }
         });
-        console.log(`✨ 인식된 폰트 파일 개수: ${fontsList.length}개`, fontsList);
+        console.log(`✨ 폰트 스캔 성공: ${fontsList.length}개 발견`);
     } catch (e) {
-        console.error("❌ 폰트 디렉토리 스캔 오류:", e);
+        console.error("❌ 폰트 디렉토리 스캔 중 에러 발생:", e);
     }
 
     res.json(fontsList);
@@ -84,16 +82,20 @@ app.get('/api/fonts-list', (req, res) => {
 
 // 💡 안전한 개별 폰트 파일 전용 서빙 라우트
 app.get('/font-file/:fileName', (req, res) => {
-    const fileName = decodeURIComponent(req.params.fileName);
-    const targetPath = path.join(__dirname, fileName);
-    
-    if (fs.existsSync(targetPath)) {
-        const ext = path.extname(fileName).toLowerCase();
-        if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
-            return res.sendFile(targetPath);
+    try {
+        const fileName = decodeURIComponent(req.params.fileName);
+        const targetPath = path.join(__dirname, fileName);
+        
+        if (fs.existsSync(targetPath)) {
+            const ext = path.extname(fileName).toLowerCase();
+            if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
+                return res.sendFile(targetPath);
+            }
         }
+        res.status(404).send("폰트 파일을 찾을 수 없습니다.");
+    } catch (err) {
+        res.status(500).send("서버 오류 발생");
     }
-    res.status(404).send("폰트 파일을 찾을 수 없습니다.");
 });
 
 // =======================================================
