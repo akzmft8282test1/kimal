@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- 1. 서버에서 동적으로 제공하는 폰트 스타일 파일 로드 -->
-<link rel="stylesheet" href="/global-font.css">
-
-<!-- 2. 저장된 폰트를 페이지 로딩 시 자동으로 전체 적용하는 스크립트 -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const savedFont = localStorage.getItem('selected_global_font');
-        if (savedFont) {
-            document.body.style.fontFamily = `'${savedFont}', sans-serif`;
-        }
-    });
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>폰트 관리 대시보드</title>
@@ -85,14 +73,14 @@
 
     <div class="box">
         <label for="fontSelect">전체 적용할 폰트 선택:</label>
-        <select id="fontSelect" onchange="changeGlobalFont()">
+        <select id="fontSelect">
             <option value="">-- 기본 시스템 폰트 --</option>
         </select>
         
         <div class="btn-group">
-            <button class="btn" onclick="saveFontSetting()">💾 저장하기</button>
-            <button class="btn btn-secondary" onclick="location.href='/index'">🏠 Index로 가기</button>
-            <button class="btn btn-secondary" onclick="location.href='/moui'">📝 Moui로 가기</button>
+            <button class="btn" id="saveBtn">💾 저장하기</button>
+            <button class="btn btn-secondary" id="indexBtn">🏠 Index로 가기</button>
+            <button class="btn btn-secondary" id="mouiBtn">📝 Moui로 가기</button>
         </div>
         
         <div class="success-msg" id="successMsg">✅ 설정이 저장되어 모든 페이지에 적용됩니다!</div>
@@ -104,55 +92,64 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        const fontSelect = document.getElementById('fontSelect');
+        const previewText = document.getElementById('previewText');
+
+        // 1. 서버에서 폰트 목록 가져오기
         fetch('/api/fonts-list')
             .then(res => res.json())
             .then(fonts => {
-                const select = document.getElementById('fontSelect');
-
                 fonts.forEach(font => {
                     const option = document.createElement('option');
                     option.value = font.name;
                     option.textContent = font.name;
-                    select.appendChild(option);
+                    fontSelect.appendChild(option);
                 });
 
-                // localStorage에 저장된 폰트 불러오기
+                // 저장된 폰트 불러오기
                 const savedFont = localStorage.getItem('selected_global_font');
                 if (savedFont) {
-                    select.value = savedFont;
-                    applyFontToElements(savedFont);
+                    fontSelect.value = savedFont;
+                    applyFont(savedFont);
                 }
             })
             .catch(err => console.error("폰트 목록 불러오기 실패:", err));
-    });
 
-    function changeGlobalFont() {
-        const selectedFont = document.getElementById('fontSelect').value;
-        applyFontToElements(selectedFont);
-    }
+        // 2. 드롭다운 변경 이벤트
+        fontSelect.addEventListener('change', (e) => {
+            applyFont(e.target.value);
+        });
 
-    function applyFontToElements(fontName) {
-        const preview = document.getElementById('previewText');
-        if (fontName) {
-            document.body.style.fontFamily = `'${fontName}', sans-serif`;
-            preview.style.fontFamily = `'${fontName}', sans-serif`;
-        } else {
-            document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif';
-            preview.style.fontFamily = '';
+        function applyFont(fontName) {
+            if (fontName) {
+                document.body.style.fontFamily = `'${fontName}', sans-serif`;
+                previewText.style.fontFamily = `'${fontName}', sans-serif`;
+            } else {
+                document.body.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif';
+                previewText.style.fontFamily = '';
+            }
         }
-    }
 
-    // 💾 localStorage에 영구 저장 (다른 페이지에서도 유지됨)
-    function saveFontSetting() {
-        const selectedFont = document.getElementById('fontSelect').value;
-        localStorage.setItem('selected_global_font', selectedFont);
+        // 3. 버튼 이벤트 리스너 부착 (CSP 충돌 방지)
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const selectedFont = fontSelect.value;
+            localStorage.setItem('selected_global_font', selectedFont);
 
-        const msg = document.getElementById('successMsg');
-        msg.style.display = 'block';
-        setTimeout(() => {
-            msg.style.display = 'none';
-        }, 2500);
-    }
+            const msg = document.getElementById('successMsg');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 2500);
+        });
+
+        document.getElementById('indexBtn').addEventListener('click', () => {
+            location.href = '/index';
+        });
+
+        document.getElementById('mouiBtn').addEventListener('click', () => {
+            location.href = '/moui';
+        });
+    });
 </script>
 
 </body>
