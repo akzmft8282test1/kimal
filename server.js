@@ -44,7 +44,7 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [루트 폴더 폰트 자동 스캔 API (/api/fonts-list)]
+// 🎨 [개선된 루트 폴더 폰트 자동 스캔 API (/api/fonts-list)]
 // =======================================================
 app.get('/api/fonts-list', (req, res) => {
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
@@ -52,21 +52,23 @@ app.get('/api/fonts-list', (req, res) => {
 
     try {
         const files = fs.readdirSync(__dirname);
-        files.forEach(file => {
+        files.forEach((file, index) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
-                const fontName = path.basename(file, ext);
+                // 보기 좋게 파일명 정리 (확장자 제거 및 특수문자 정돈)
+                const cleanName = path.basename(file, ext).replace(/[_._]/g, ' ');
                 let formatStr = 'truetype';
                 if (ext === '.otf') formatStr = 'opentype';
                 else if (ext === '.woff2') formatStr = 'woff2';
                 else if (ext === '.woff') formatStr = 'woff';
 
                 fontsList.push({
-                    name: fontName,
+                    id: `font_${index}`,
+                    name: cleanName,
                     filename: file,
                     ext: ext.replace('.', ''),
                     format: formatStr,
-                    url: `/${encodeURIComponent(file)}`
+                    url: `/font-file/${encodeURIComponent(file)}`
                 });
             }
         });
@@ -77,17 +79,18 @@ app.get('/api/fonts-list', (req, res) => {
     res.json(fontsList);
 });
 
-// 개별 폰트 파일 직접 서빙 라우트
-app.get('/:fontFile', (req, res, next) => {
-    const fontFile = req.params.fontFile;
-    const ext = path.extname(fontFile).toLowerCase();
-    if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
-        const targetPath = path.join(__dirname, fontFile);
-        if (fs.existsSync(targetPath)) {
+// 💡 안전한 개별 폰트 파일 전용 서빙 라우트
+app.get('/font-file/:fileName', (req, res) => {
+    const fileName = decodeURIComponent(req.params.fileName);
+    const targetPath = path.join(__dirname, fileName);
+    
+    if (fs.existsSync(targetPath)) {
+        const ext = path.extname(fileName).toLowerCase();
+        if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
             return res.sendFile(targetPath);
         }
     }
-    next();
+    res.status(404).send("폰트 파일을 찾을 수 없습니다.");
 });
 
 // =======================================================
