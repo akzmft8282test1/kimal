@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>폰트 관리 대시보드</title>
-    <!-- 동적으로 생성되는 @font-face 스타일이 들어갈 자리 -->
-    <style id="dynamic-font-face"></style>
+    <!-- 전역 폰트 CSS 연동 -->
+    <link rel="stylesheet" href="/global-font.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
@@ -35,6 +35,7 @@
             background: #fff;
             margin-bottom: 12px;
         }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .btn {
             background: #3b82f6;
             color: white;
@@ -47,6 +48,8 @@
             transition: background 0.2s;
         }
         .btn:hover { background: #2563eb; }
+        .btn-secondary { background: #64748b; }
+        .btn-secondary:hover { background: #475569; }
         .preview {
             margin-top: 15px;
             padding: 15px;
@@ -69,13 +72,18 @@
     <h1>🎛️ 루트 폴더 폰트 관리 대시보드</h1>
 
     <div class="box">
-        <label for="fontSelect">사용할 폰트 선택:</label>
+        <label for="fontSelect">전체 적용할 폰트 선택:</label>
         <select id="fontSelect" onchange="changeGlobalFont()">
             <option value="">-- 기본 시스템 폰트 --</option>
         </select>
         
-        <button class="btn" onclick="saveFontSetting()">💾 저장하기</button>
-        <div class="success-msg" id="successMsg">✅ 세션에 폰트 설정이 안전하게 저장되었습니다!</div>
+        <div class="btn-group">
+            <button class="btn" onclick="saveFontSetting()">💾 저장하기</button>
+            <button class="btn btn-secondary" onclick="location.href='/index'">🏠 Index로 가기</button>
+            <button class="btn btn-secondary" onclick="location.href='/moui'">📝 Moui로 가기</button>
+        </div>
+        
+        <div class="success-msg" id="successMsg">✅ 설정이 저장되어 모든 페이지에 적용됩니다!</div>
 
         <div class="preview" id="previewText">
             미리보기 텍스트: 가나다라마바사 아자차카타파하 ABC 123
@@ -84,33 +92,20 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // 1. 서버 API를 통해 루트 폴더의 폰트 리스트를 가져옴
         fetch('/api/fonts-list')
             .then(res => res.json())
             .then(fonts => {
                 const select = document.getElementById('fontSelect');
-                let fontFaceCSS = '';
 
                 fonts.forEach(font => {
-                    fontFaceCSS += `
-                        @font-face {
-                            font-family: '${font.name}';
-                            src: url('${font.url}') format('${font.format}');
-                            font-weight: normal;
-                            font-style: normal;
-                        }
-                    `;
-
                     const option = document.createElement('option');
                     option.value = font.name;
                     option.textContent = font.name;
                     select.appendChild(option);
                 });
 
-                document.getElementById('dynamic-font-face').innerHTML = fontFaceCSS;
-
-                // 2. 이미 세션에 저장된 폰트가 있다면 불러와서 적용
-                const savedFont = sessionStorage.getItem('selected_global_font');
+                // localStorage에 저장된 폰트 불러오기
+                const savedFont = localStorage.getItem('selected_global_font');
                 if (savedFont) {
                     select.value = savedFont;
                     applyFontToElements(savedFont);
@@ -119,13 +114,11 @@
             .catch(err => console.error("폰트 목록 불러오기 실패:", err));
     });
 
-    // 드롭다운 변경 시 실시간 미리보기 적용
     function changeGlobalFont() {
         const selectedFont = document.getElementById('fontSelect').value;
         applyFontToElements(selectedFont);
     }
 
-    // 실제 요소들에 폰트 스타일을 적용하는 공통 함수
     function applyFontToElements(fontName) {
         const preview = document.getElementById('previewText');
         if (fontName) {
@@ -137,10 +130,10 @@
         }
     }
 
-    // 💾 저장 버튼 클릭 시 sessionStorage에 기록
+    // 💾 localStorage에 영구 저장 (다른 페이지에서도 유지됨)
     function saveFontSetting() {
         const selectedFont = document.getElementById('fontSelect').value;
-        sessionStorage.setItem('selected_global_font', selectedFont);
+        localStorage.setItem('selected_global_font', selectedFont);
 
         const msg = document.getElementById('successMsg');
         msg.style.display = 'block';
