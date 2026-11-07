@@ -34,7 +34,7 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [전체 폴더 폰트 자동 적용 라우트 (/fonts)]
+// 🎨 [루트 폴더 폰트 자동 스캔 및 /fonts 라우트]
 // =======================================================
 app.get('/fonts', (req, res) => {
     res.setHeader('Content-Type', 'text/css');
@@ -42,20 +42,26 @@ app.get('/fonts', (req, res) => {
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontCss = '';
     
-    // 서버 루트 디렉토리 스캔
     try {
+        // 서버 루트 폴더 내의 파일들을 읽어들임
         const files = fs.readdirSync(__dirname);
         files.forEach(file => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
+                // 확장자를 제외한 파일명을 폰트 패밀리 이름으로 사용 (예: NanumGothic.ttf -> 'NanumGothic')
                 const fontName = path.basename(file, ext);
-                // URL 엔코딩 처리
                 const fontUrl = `/${encodeURIComponent(file)}`;
                 
+                let formatStr = 'truetype';
+                if (ext === '.otf') formatStr = 'opentype';
+                else if (ext === '.woff2') formatStr = 'woff2';
+                else if (ext === '.woff') formatStr = 'woff';
+
+                // 각 폰트마다 개별 @font-face 생성 (원하는 폰트명으로 지정 가능)
                 fontCss += `
                 @font-face {
-                    font-family: 'CustomFont';
-                    src: url('${fontUrl}') format('${ext === '.otf' ? 'opentype' : ext === '.woff2' ? 'woff2' : ext === '.woff' ? 'woff' : 'truetype'}');
+                    font-family: '${fontName}';
+                    src: url('${fontUrl}') format('${formatStr}');
                     font-weight: normal;
                     font-style: normal;
                 }
@@ -66,17 +72,18 @@ app.get('/fonts', (req, res) => {
         console.error("폰트 디렉토리 스캔 오류:", e);
     }
 
-    // 전체 문서에 폰트 일괄 적용
+    // 기본 전체 적용 및 유틸리티 클래스 제공
     fontCss += `
+    /* 기본 바디에 첫 번째로 스캔된 폰트 자동 지정 (원하는 경우 아래에서 수정 가능) */
     body, html, button, input, select, textarea, th, td {
-        font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
     }
     `;
 
     res.send(fontCss);
 });
 
-// 개별 폰트 파일 직접 서빙 라우트 (루트 디렉토리 폰트 파일 매핑)
+// 개별 폰트 파일 직접 서빙 라우트
 app.get('/:fontFile', (req, res, next) => {
     const fontFile = req.params.fontFile;
     const ext = path.extname(fontFile).toLowerCase();
