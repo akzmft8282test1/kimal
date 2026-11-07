@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const PDFDocument = require('pdfkit'); // 🚀 크롬 엔진 대신 안전한 pdfkit 활용
 const app = express();
 const PORT = process.env.PORT || 3000;
 
