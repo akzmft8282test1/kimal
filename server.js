@@ -8,19 +8,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// 1. 폰트 관리 대시보드 페이지 라우트
-app.get('/fonts', (req, res) => {
-    res.sendFile(path.join(__dirname, 'fonts.html'));
-});
+// 🌐 페이지 라우트 설정 (404 방지)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'endex.html')));
+app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
+app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
+app.get('/fonts', (req, res) => res.sendFile(path.join(__dirname, 'fonts.html')));
 
-// 2. 루트 폴더의 폰트 파일 목록을 JSON으로 반환하는 API
+// 📊 루트 폴더 폰트 목록 JSON 반환 API
 app.get('/api/fonts-list', (req, res) => {
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
     try {
         const files = fs.readdirSync(__dirname);
-        files.forEach((file, index) => {
+        files.forEach((file) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
                 const fontName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
@@ -43,7 +45,7 @@ app.get('/api/fonts-list', (req, res) => {
     res.json(fontsList);
 });
 
-// 3. 🎨 모든 페이지에서 공통으로 로드할 수 있는 전역 폰트 @font-face CSS 라우트
+// 🎨 모든 페이지에서 공통으로 로드할 전역 폰트 CSS 라우트
 app.get('/global-font.css', (req, res) => {
     res.setHeader('Content-Type', 'text/css');
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
@@ -77,7 +79,7 @@ app.get('/global-font.css', (req, res) => {
     res.send(css);
 });
 
-// 4. 개별 폰트 파일 직접 서빙 (루트 경로에 있는 폰트 파일 매핑)
+// 개별 폰트 파일 직접 서빙
 app.get('/:fontFile', (req, res, next) => {
     const fontFile = req.params.fontFile;
     const ext = path.extname(fontFile).toLowerCase();
