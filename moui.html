@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2학기 1차 정기시험 대비 정보 실전 모의고사</title>
+    <link rel="stylesheet" href="/fonts"> <!-- 서버 전체 폰트 자동 적용 라우트 연동 -->
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -13,14 +14,12 @@
             --bg-color: #f5f7fa;
             --box-bg: #ffffff;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; line-height: 1.6; background-color: var(--bg-color); color: #333; margin: 0; padding: 10px; }
+        body { font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; line-height: 1.6; background-color: var(--bg-color); color: #333; margin: 0; padding: 10px; }
         .container { max-width: 840px; margin: 0 auto; background: var(--box-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1 { text-align: center; color: var(--primary-color); font-size: 1.6rem; margin-bottom: 20px; }
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: #e2e8f0; font-weight: bold; cursor: pointer; border-radius: 6px 6px 0 0; font-size: 0.95rem; }
         .tab-btn.active { background: var(--primary-color); color: white; }
-        .exam-section { display: none; }
-        .exam-section.active { display: block; }
         .q-box { background: #fff; border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .q-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 10px; color: #2c3e50; }
         .option-list { list-style: none; padding: 0; margin: 0; }
@@ -35,14 +34,13 @@
         .btn { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; text-align: center; text-decoration: none; }
         .btn-submit { background: var(--accent-color); color: white; grid-column: span 2; }
         .btn-pdf { background: #718096; color: white; }
-        .btn-ans { background: #e74c3c; color: white; }
         #score-board { display: none; background: #ebf8ff; border: 1px solid #bee3f8; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📝 2학기 1차 정기시험 실전 모의평가</h1>
+    <h1>📝 2학기 1차 정기시험 실전 모의고사</h1>
     
     <div class="tabs">
         <button class="tab-btn active" onclick="switchExam('1')">제 1회 모의고사</button>
@@ -68,15 +66,11 @@
     let examData = {};
     let currentExam = '1';
 
-    // 💡 페이지 로드(새로고침) 시점에만 딱 한 번 새로운 셔플 데이터를 세션에 강제 갱신합니다.
     document.addEventListener("DOMContentLoaded", () => {
-        // 새로고침 감지를 위해 sessionStorage에 새로고침 플래그 또는 세션 키 초기화 수행 가능
         fetch('/api/exam-data')
             .then(res => res.json())
             .then(data => {
                 examData = data;
-                // 페이지 진입/새로고침 시 해당 세션의 문제 보기 순서를 새로 랜덤 세팅
-                prepareSessionShuffles(data);
                 renderQuestions();
             })
             .catch(err => {
@@ -92,18 +86,6 @@
             [arr[i], arr[j]] = [arr[j], arr[i]];
         }
         return arr;
-    }
-
-    // 새로고침/첫 로딩 때만 회차별 보기 셔플을 새로 생성하여 저장
-    function prepareSessionShuffles(data) {
-        for (let examNum in data) {
-            if (data[examNum].choice) {
-                data[examNum].choice.forEach(q => {
-                    const shuffled = shuffleArray(q.options);
-                    sessionStorage.setItem(`shuffled_${examNum}_${q.id}`, JSON.stringify(shuffled));
-                });
-            }
-        }
     }
 
     function switchExam(num) {
@@ -127,9 +109,8 @@
             activeData.choice.forEach(q => {
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
                 
-                // 로딩 시점에 만들어둔 세션 셔플 데이터를 불러옴 (다운로드 센터와 완벽 동기화)
-                const savedShuffled = sessionStorage.getItem(`shuffled_${currentExam}_${q.id}`);
-                const shuffledOptions = savedShuffled ? JSON.parse(savedShuffled) : shuffleArray(q.options);
+                // 💡 새로고침할 때마다 매번 새롭게 무작위 셔플 실행
+                const shuffledOptions = shuffleArray(q.options);
                 const newAnswerIndex = shuffledOptions.findIndex(opt => opt === originalCorrectText) + 1;
 
                 let optionsHtml = '';
