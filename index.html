@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- 1. 서버에서 동적으로 제공하는 폰트 스타일 파일 로드 -->
+<link rel="stylesheet" href="/global-font.css">
+
+<!-- 2. 저장된 폰트를 페이지 로딩 시 자동으로 전체 적용하는 스크립트 -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedFont = localStorage.getItem('selected_global_font');
+        if (savedFont) {
+            document.body.style.fontFamily = `'${savedFont}', sans-serif`;
+        }
+    });
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026학년도 2학기 1차 정기시험 대비 정보 복습활동지</title>
