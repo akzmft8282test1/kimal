@@ -146,37 +146,41 @@
 </div>
 
 <script>
-    console.log("🚀 [브라우저 콘솔] fonts.html 스크립트 실행 시작!");
     let availableFonts = [];
 
     document.addEventListener("DOMContentLoaded", () => {
-        console.log("🚀 [브라우저 콘솔] DOMContentLoaded 이벤트 발생. /api/fonts-list fetch 시작");
         const debugStatus = document.getElementById('debug-status');
+        console.log("🚀 폰트 대시보드 스크립트 실행됨. API 요청 시작...");
         
-        fetch('/api/fonts-list')
+        // 절대 경로를 사용하여 주소 꼬임 방지
+        const apiUrl = window.location.origin + '/api/fonts-list';
+        
+        fetch(apiUrl)
             .then(res => {
-                console.log("📥 [브라우저 콘솔] 서버 응답 수신, 상태 코드:", res.status);
-                if (!res.ok) throw new Error("서버 응답 오류 (HTTP " + res.status + ")");
+                console.log("📥 서버 응답 상태:", res.status);
+                if (!res.ok) throw new Error("서버 응답 에러 (HTTP " + res.status + ")");
                 return res.json();
             })
             .then(fonts => {
-                console.log("✨ [브라우저 콘솔] 파싱된 폰트 목록 데이터:", fonts);
+                console.log("✨ 파싱된 폰트 데이터:", fonts);
                 availableFonts = fonts;
+                
                 if(fonts.length > 0) {
                     debugStatus.style.color = "#27ae60";
-                    debugStatus.textContent = `✅ 폰트 스캔 성공: 총 ${fonts.length}개의 폰트가 감지되었습니다. (${fonts.map(f=>f.name).join(', ')})`;
+                    debugStatus.textContent = `✅ 폰트 스캔 성공: 총 ${fonts.length}개의 폰트가 감지되었습니다.`;
                 } else {
                     debugStatus.style.color = "#e67e22";
-                    debugStatus.textContent = "⚠️ 루트 폴더에 .ttf / .otf 폰트 파일이 감지되지 않았습니다.";
+                    debugStatus.textContent = "⚠️ 루트 폴더에 폰트 파일이 없습니다.";
                 }
+                
                 buildFontFaceStyles(fonts);
                 populateDropdowns(fonts);
                 loadSavedSettings();
             })
             .catch(err => {
-                console.error("❌ [브라우저 콘솔] 폰트 로드 중 에러 발생:", err);
+                console.error("❌ 폰트 로드 실패:", err);
                 debugStatus.style.color = "#c0392b";
-                debugStatus.textContent = "❌ 폰트 목록 로드 실패: " + err.message;
+                debugStatus.textContent = "❌ 폰트 로드 실패: " + err.message;
             });
     });
 
@@ -193,7 +197,6 @@
             `;
         });
         document.getElementById('dynamic-font-style').innerHTML = styleHtml;
-        console.log("🎨 [브라우저 콘솔] 동적 @font-face 스타일 주입 완료");
     }
 
     function populateDropdowns(fonts) {
@@ -211,7 +214,6 @@
             opt2.textContent = `${f.name} (${f.ext.toUpperCase()})`;
             selectorSelect.appendChild(opt2);
         });
-        console.log("📋 [브라우저 콘솔] 드롭다운 옵션 채우기 완료");
     }
 
     function applyGlobalFont() {
