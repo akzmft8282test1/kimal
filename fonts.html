@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 폰트 관리 및 스타일 대시보드</title>
+    <!-- 동적 폰트 로딩용 스타일 동적 주입 영역 -->
+    <style id="dynamic-font-style"></style>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+            background: var(--bg);
+            color: #334155;
+            margin: 0;
+            padding: 30px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 8px; }
+        .desc { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 0.95rem; }
+        
+        .section {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h3 { margin-top: 0; color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid var(--accent); padding-bottom: 6px; }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        select, input[type="text"] {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            flex: 1;
+            min-width: 220px;
+            background: #fff;
+        }
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background: #64748b; }
+
+        .preview-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px dashed var(--accent);
+            border-radius: 6px;
+            font-size: 1.1rem;
+        }
+
+        .css-output {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .nav-links { text-align: right; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-links">
+        <button class="btn btn-secondary" onclick="location.href='/moui'">👈 모의고사 화면으로</button>
+        <button class="btn btn-secondary" onclick="location.href='/download'">📄 다운로드 센터</button>
+    </div>
+
+    <h1>🎛️ 폰트 관리 및 실시간 적용 GUI 대시보드</h1>
+    <div class="desc">루트 폴더에 업로드된 폰트 파일들을 자동으로 감지하여, 전체 텍스트 또는 특정 CSS 요소별 폰트를 자유롭게 지정할 수 있습니다.</div>
+
+    <!-- 1. 전체 글꼴 일괄 변경 제어판 -->
+    <div class="section">
+        <h3>🌐 1. 모든 글자를 특정 폰트로 일괄 적용</h3>
+        <div class="control-group">
+            <label for="global-font-select">전체 글꼴 선택:</label>
+            <select id="global-font-select" onchange="applyGlobalFont()">
+                <option value="">-- 기본 시스템 폰트 --</option>
+            </select>
+            <button class="btn" onclick="saveGlobalSetting()">설정 저장</button>
+        </div>
+        <div class="preview-box" id="global-preview">
+            미리보기 텍스트: 가나다라마바사 아자차카타파하 ABC 123 Education Exam & System
+        </div>
+    </div>
+
+    <!-- 2. 특정 CSS 선택자별 개별 폰트 지정 제어판 -->
+    <div class="section">
+        <h3>🎯 2. 특정 CSS 요소(선택자)별 폰트 지정</h3>
+        <div class="control-group">
+            <label for="css-selector">CSS 선택자:</label>
+            <input type="text" id="css-selector" placeholder="예: h1, .q-title, table, body 등" value="h1">
+        </div>
+        <div class="control-group">
+            <label for="selector-font-select">적용할 폰트:</label>
+            <select id="selector-font-select">
+                <option value="">-- 폰트 선택 --</option>
+            </select>
+            <button class="btn" onclick="applySelectorFont()">스타일 적용 테스트</button>
+        </div>
+    </div>
+
+    <!-- 3. 실시간 생성된 CSS 코드 확인 -->
+    <div class="section">
+        <h3>📋 생성된 CSS 스타일 코드</h3>
+        <div class="desc" style="text-align: left; margin-bottom: 5px;">웹사이트나 HTML `<style>` 태그에 그대로 복사하여 사용할 수 있습니다.</div>
+        <div class="css-output" id="css-code-view">/* 폰트를 선택하면 CSS가 자동으로 생성됩니다. */</div>
+    </div>
+</div>
+
+<script>
+    let availableFonts = [];
+
+    // 페이지 로드시 서버에서 폰트 목록 및 저장된 설정 불러오기
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('/api/fonts-list')
+            .then(res => res.json())
+            .then(fonts => {
+                availableFonts = fonts;
+                buildFontFaceStyles(fonts);
+                populateDropdowns(fonts);
+                loadSavedSettings();
+            })
+            .catch(err => alert("폰트 목록을 불러오지 못했습니다: " + err.message));
+    });
+
+    // 1. 동적 @font-face 스타일 주입
+    function buildFontFaceStyles(fonts) {
+        let styleHtml = '';
+        fonts.forEach(f => {
+            styleHtml += `
+            @font-face {
+                font-family: '${f.name}';
+                src: url('${f.url}') format('${f.format}');
+                font-weight: normal;
+                font-style: normal;
+            }
+            `;
+        });
+        document.getElementById('dynamic-font-style').innerHTML = styleHtml;
+    }
+
+    // 2. 드롭다운 목록 채우기
+    function populateDropdowns(fonts) {
+        const globalSelect = document.getElementById('global-font-select');
+        const selectorSelect = document.getElementById('selector-font-select');
+
+        fonts.forEach(f => {
+            const opt1 = document.createElement('option');
+            opt1.value = f.name;
+            opt1.textContent = `${f.name} (${f.ext.toUpperCase()})`;
+            globalSelect.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = f.name;
+            opt2.textContent = `${f.name} (${f.ext.toUpperCase()})`;
+            selectorSelect.appendChild(opt2);
+        });
+    }
+
+    // 3. 전체 폰트 적용 기능
+    function applyGlobalFont() {
+        const selectedFont = document.getElementById('global-font-select').value;
+        const previewBox = document.getElementById('global-preview');
+        
+        if (selectedFont) {
+            document.body.style.fontFamily = `'${selectedFont}', sans-serif`;
+            previewBox.style.fontFamily = `'${selectedFont}', sans-serif`;
+        } else {
+            document.body.style.fontFamily = '';
+            previewBox.style.fontFamily = '';
+        }
+        updateCssOutput();
+    }
+
+    function saveGlobalSetting() {
+        const selectedFont = document.getElementById('global-font-select').value;
+        localStorage.setItem('dashboard_global_font', selectedFont);
+        alert(`전체 폰트가 [${selectedFont || '기본값'}]으로 성공적으로 저장되었습니다!`);
+    }
+
+    // 4. 특정 선택자 폰트 적용 테스트
+    const customRules = {};
+    function applySelectorFont() {
+        const selector = document.getElementById('css-selector').value.trim();
+        const font = document.getElementById('selector-font-select').value;
+
+        if (!selector || !font) {
+            alert("CSS 선택자와 폰트를 모두 입력/선택해 주세요.");
+            return;
+        }
+
+        customRules[selector] = font;
+        
+        // 실시간 DOM 적용
+        try {
+            document.querySelectorAll(selector).forEach(el => {
+                el.style.fontFamily = `'${font}', sans-serif`;
+            });
+            alert(`선택자 [${selector}]에 폰트 [${font}]가 적용되었습니다.`);
+        } catch (e) {
+            alert("유효하지 않은 CSS 선택자입니다.");
+        }
+        updateCssOutput();
+    }
+
+    // 5. 생성된 CSS 코드 실시간 업데이트
+    function updateCssOutput() {
+        const globalFont = document.getElementById('global-font-select').value;
+        let cssText = "/* --- 폰트 적용 CSS --- */\n";
+        
+        availableFonts.forEach(f => {
+            cssText += `@font-face {\n    font-family: '${f.name}';\n    src: url('${f.url}') format('${f.format}');\n}\n\n`;
+        });
+
+        if (globalFont) {
+            cssText += `body {\n    font-family: '${globalFont}', sans-serif;\n}\n\n`;
+        }
+
+        for (let sel in customRules) {
+            cssText += `${sel} {\n    font-family: '${customRules[sel]}', sans-serif;\n}\n`;
+        }
+
+        document.getElementById('css-code-view').textContent = cssText;
+    }
+
+    // 저장된 설정 불러오기
+    function loadSavedSettings() {
+        const savedGlobal = localStorage.getItem('dashboard_global_font');
+        if (savedGlobal) {
+            document.getElementById('global-font-select').value = savedGlobal;
+            applyGlobalFont();
+        }
+    }
+</script>
+
+</body>
+</html>
