@@ -44,19 +44,22 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
-// 🎨 [안전한 비동기 폰트 스캔 API (/api/fonts-list)]
+// 🎨 [완전 동기화 및 멈춤 방지 폰트 스캔 API (/api/fonts-list)]
 // =======================================================
-app.get('/api/fonts-list', async (req, res) => {
-    console.log("📥 /api/fonts-list 요청이 들어왔습니다.");
+app.get('/api/fonts-list', (req, res) => {
+    console.log("📥 [API 요청 감지] /api/fonts-list 호출됨");
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
     try {
-        const files = await fs.promises.readdir(__dirname);
+        // 동기식으로 안전하게 루트 폴더 읽기 (블로킹 방지 및 즉시 응답)
+        const files = fs.readdirSync(__dirname);
+        console.log(`📁 루트 폴더 내 파일 총 ${files.length}개 발견`);
+
         files.forEach((file, index) => {
             const ext = path.extname(file).toLowerCase();
             if (fontExtensions.includes(ext)) {
-                const cleanName = path.basename(file, ext).replace(/[_._]/g, ' ').trim();
+                const cleanName = path.basename(file, ext).replace(/[_.-]/g, ' ').trim();
                 let formatStr = 'truetype';
                 if (ext === '.otf') formatStr = 'opentype';
                 else if (ext === '.woff2') formatStr = 'woff2';
@@ -72,15 +75,16 @@ app.get('/api/fonts-list', async (req, res) => {
                 });
             }
         });
-        console.log(`✨ 폰트 스캔 성공: ${fontsList.length}개 발견`);
+        console.log(`✨ 유효한 폰트 파일 ${fontsList.length}개 반환 준비 완료`);
     } catch (e) {
         console.error("❌ 폰트 디렉토리 스캔 중 에러 발생:", e);
     }
 
-    res.json(fontsList);
+    // 무조건 JSON 응답을 반환하여 브라우저가 대기 상태에 빠지지 않도록 보장
+    return res.json(fontsList);
 });
 
-// 💡 안전한 개별 폰트 파일 전용 서빙 라우트
+// 💡 개별 폰트 파일 서빙 라우트
 app.get('/font-file/:fileName', (req, res) => {
     try {
         const fileName = decodeURIComponent(req.params.fileName);
@@ -116,7 +120,7 @@ app.get('/download/activity/:target', (req, res) => {
     const filePath = path.join(__dirname, targetFileName);
 
     if (fs.existsSync(filePath)) {
-        return res.sendFile(filePath);
+        return fs.existsSync(filePath) ? res.sendFile(filePath) : res.status(404).send("파일 없음");
     } else {
         const publicPath = path.join(__dirname, 'public', targetFileName);
         if (fs.existsSync(publicPath)) {
