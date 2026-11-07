@@ -69,7 +69,6 @@
     let examData = {};
     let currentExam = '1';
 
-    // 페이지 로드 시 백엔드로부터 최신 JSON 데이터 원격 확보
     document.addEventListener("DOMContentLoaded", () => {
         fetch('/api/exam-data')
             .then(res => res.json())
@@ -83,7 +82,6 @@
             });
     });
 
-    // 탭 전환 처리
     function switchExam(num) {
         currentExam = num;
         document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
@@ -93,7 +91,6 @@
         renderQuestions();
     }
 
-    // 배열 무작위 셔플 함수 (보기 섞기용)
     function shuffleArray(array) {
         const arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -103,7 +100,6 @@
         return arr;
     }
 
-    // 데이터를 기반으로 UI 컴포넌트 생성 바인딩 (보기 및 정답 무작위 셔플 적용)
     function renderQuestions() {
         const container = document.getElementById("questions-container");
         const activeData = examData[currentExam];
@@ -111,17 +107,13 @@
 
         let html = '';
 
-        // 선택형 가로 채우기 (매번 보기 번호가 바뀌도록 셔플)
         if (activeData.choice) {
             html += `<h2 style="color:var(--primary-color); border-bottom:2px solid #edf2f7; padding-bottom:5px;">I. 선택형 객관식 문항</h2>`;
             activeData.choice.forEach(q => {
-                // 원래 정답 텍스트 찾기 (기존 정답 번호에 해당하는 텍스트)
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
-
-                // 보기 순서 섞기
+                
+                // 새로고침할 때마다 매번 새롭게 무작위 셔플 실행
                 const shuffledOptions = shuffleArray(q.options);
-
-                // 섞인 보기 속에서 새로운 정답 번호(1~4) 찾기
                 const newAnswerIndex = shuffledOptions.findIndex(opt => opt === originalCorrectText) + 1;
 
                 let optionsHtml = '';
@@ -144,7 +136,6 @@
             });
         }
 
-        // 서술형 주입
         if (activeData.essay) {
             html += `<h2 style="color:var(--primary-color); border-bottom:2px solid #edf2f7; padding-bottom:5px; margin-top:30px;">II. 서술형 주관식 문항</h2>`;
             activeData.essay.forEach(q => {
@@ -160,7 +151,6 @@
         container.innerHTML = html;
     }
 
-    // 동적 클라이언트 채점기 엔진
     function gradeExam() {
         const qBoxes = document.querySelectorAll('.q-box');
         let scoreChoice = 0;
@@ -172,7 +162,7 @@
             const id = box.dataset.id;
             const type = box.dataset.type;
             const fbBox = document.getElementById(`fb_${id}`);
-            fbBox.className = "feedback"; // 초기화
+            fbBox.className = "feedback";
 
             if (type === 'choice') {
                 countChoice++;
@@ -216,36 +206,8 @@
         board.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 서버에 POST로 세션 다운로드 호출 요청
     function generateServerPDF(type) {
-        const btn = event.currentTarget;
-        const originText = btn.innerText;
-        btn.innerText = "PDF 빌드 중...";
-        btn.disabled = true;
-
-        fetch(`/download/${type}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ examNum: currentExam })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("서버 PDF 렌더링에 실패했습니다. (404/500 확인)");
-            return res.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `정보_모의고사_제${currentExam}회_${type === 'question' ? '문제지' : '정답지'}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        })
-        .catch(err => alert("다운로드 실패: " + err.message))
-        .finally(() => {
-            btn.innerText = originText;
-            btn.disabled = false;
-        });
+        location.href = '/download';
     }
 </script>
 
