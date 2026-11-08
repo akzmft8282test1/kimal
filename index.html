@@ -10,7 +10,6 @@
             const savedFont = localStorage.getItem('selected_global_font');
             if (savedFont) {
                 const style = document.createElement('style');
-                // 선택한 폰트 뒤에 Apple Color Emoji, Segoe UI Symbol, 맑은 고딕, sans-serif 등을 순차적으로 배치하여 기호 누락 방지
                 style.innerHTML = `
                     body, * { 
                         font-family: '${savedFont}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
@@ -24,10 +23,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026학년도 2학기 1차 정기시험 대비 정보 복습활동지</title>
     <style>
-        /* 특수 아이콘 및 기호 클래스에 기본 기호 폰트 강제 적용 */
-        .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-            }
+        /* 💡 화살표 및 특수 기호가 포함된 요소는 시스템 기호 폰트를 강제하여 절대 깨지지 않도록 처리 */
+        .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow, 
+        .algo-content, .mini-flowchart, span.answer, td, th {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Malgun Gothic', 'Segoe UI Symbol', sans-serif !important;
+        }
+
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -48,7 +49,6 @@
             background-color: var(--bg-color);
         }
 
-        /* 맨 위 네비게이션 버튼 영역 */
         .top-nav {
             display: flex;
             gap: 10px;
@@ -152,7 +152,6 @@
             margin-bottom: 8px;
         }
 
-        /* 알고리즘 구조도 미니 카드 */
         .algo-diagram-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -182,7 +181,6 @@
         .algo-card.flowchart .algo-card-header { background: #f3e8ff; color: #6b21a8; }
 
         .algo-content {
-            font-family: monospace, 'Courier New', sans-serif;
             font-size: 0.9rem;
             line-height: 1.5;
             background: #f8fafc;
@@ -191,7 +189,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* 미니 순서도 CSS */
         .mini-flowchart {
             display: flex;
             flex-direction: column;
@@ -213,7 +210,6 @@
         .node-io span { display: inline-block; transform: skewX(12deg); }
         .flow-arrow { font-size: 0.8rem; color: #64748b; margin: -2px 0; }
 
-        /* 🚀 엔트리(Entry) 블록 코딩 완벽 픽셀 재현 CSS */
         .entry-workspace {
             display: flex;
             flex-wrap: wrap;
@@ -373,13 +369,11 @@
 </head>
 <body>
 
-    <!-- 맨 위 네비게이션 버튼 -->
     <div class="top-nav">
         <a href="/moui" class="nav-btn">📝 모의고사 풀러 가기</a>
         <a href="/download" class="nav-btn" style="background:#16a085;">📥 다운로드 센터</a>
     </div>
 
-    <!-- 🎨 실시간 폰트 설정 위젯 (기본 숨김, Ctrl + . 으로 켜고 끔) -->
     <div id="quick-font-widget" style="display:none; background:#f1f5f9; border:1px solid #cbd5e1; padding:10px 15px; border-radius:8px; margin-bottom:20px; align-items:center; gap:10px; flex-wrap:wrap; font-size:0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <label for="quickFontSelect" style="font-weight:bold; color:#2c3e50;">🎛️ 실시간 폰트 설정 (Ctrl + . 으로 닫기):</label>
         <select id="quickFontSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; font-size:0.9rem; flex:1; min-width:200px;">
@@ -394,14 +388,12 @@
         <div class="student-info">알고리즘과 프로그래밍 ~ 인공지능 &nbsp;|&nbsp; 2학년 반 번 이름: </div>
     </div>
 
-    <!-- 공통 위젯 및 단축키 제어 스크립트 -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const quickSelect = document.getElementById('quickFontSelect');
             const quickSaveBtn = document.getElementById('quickSaveBtn');
             const fontWidget = document.getElementById('quick-font-widget');
 
-            // Ctrl + . 단축키로 위젯 토글
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.key === '.') {
                     e.preventDefault();
@@ -449,7 +441,6 @@
                     document.head.appendChild(existingStyle);
                 }
                 if (fontName) {
-                    // 기호가 깨지지 않도록 Fallback 폰트 세트 체이닝 적용
                     existingStyle.innerHTML = `
                         body, * { 
                             font-family: '${fontName}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
@@ -532,7 +523,6 @@
         </tbody>
     </table>
 
-    <!-- 🎨 알고리즘별 구조도 (CSS 시각화) -->
     <p><strong>[알고리즘 표현 방법별 덧셈 알고리즘 구조도]</strong></p>
     <div class="algo-diagram-container">
         <div class="algo-card natural">
@@ -573,7 +563,6 @@
         </div>
     </div>
 
-    <!-- 순서도 기호와 의미 표 -->
     <p><strong>[순서도의 기호와 의미]</strong></p>
     <table>
         <thead>
@@ -661,7 +650,6 @@
         <li><strong><span class="answer">중첩제어문</span></strong> : 제어문 안에 또 다른 제어문이 포함되어 있는 프로그램 구조이다.</li>
     </ol>
 
-    <!-- 논리 연산자 진리표 3종 -->
     <p><strong>[논리 연산자 진리표]</strong></p>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <table style="flex: 1; min-width: 240px;">
@@ -710,9 +698,7 @@
         <strong>[프로그램 설명]</strong> 임의의 수 N을 입력받아 1부터 N까지의 합을 구하는 프로그램이다. (변수: 시작 값, 종료 값, 합계)
     </div>
 
-    <!-- 🎯 10번 디버깅 블록 코딩 엔트리 UI 원본 완전 동일 재현 -->
     <div class="entry-workspace">
-        <!-- ❌ 오류 코드 -->
         <div class="entry-column">
             <div class="entry-title">[ 오류 코드 ]</div>
             <div class="entry-block-stack">
@@ -745,7 +731,6 @@
                     <span class="e-help-icon">?</span>
                 </div>
                 
-                <!-- 일체형 C자 반복 블록 -->
                 <div class="e-c-wrapper">
                     <div class="e-c-header">
                         <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
@@ -782,7 +767,6 @@
             </div>
         </div>
 
-        <!-- ✅ 디버깅 -->
         <div class="entry-column">
             <div class="entry-title">[ 디버깅 ]</div>
             <div class="entry-block-stack">
@@ -815,7 +799,6 @@
                     <span class="e-help-icon">?</span>
                 </div>
                 
-                <!-- 일체형 C자 반복 블록 -->
                 <div class="e-c-wrapper">
                     <div class="e-c-header">
                         <span class="e-capsule purple-cap">종료값 <span class="e-dropdown-arrow">▼</span></span>
