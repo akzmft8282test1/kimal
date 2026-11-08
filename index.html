@@ -10,7 +10,12 @@
             const savedFont = localStorage.getItem('selected_global_font');
             if (savedFont) {
                 const style = document.createElement('style');
-                style.innerHTML = `body, * { font-family: '${savedFont}', sans-serif !important; }`;
+                // 선택한 폰트 뒤에 Apple Color Emoji, Segoe UI Symbol, 맑은 고딕, sans-serif 등을 순차적으로 배치하여 기호 누락 방지
+                style.innerHTML = `
+                    body, * { 
+                        font-family: '${savedFont}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                    }
+                `;
                 document.head.appendChild(style);
             }
         })();
@@ -440,7 +445,12 @@
                     document.head.appendChild(existingStyle);
                 }
                 if (fontName) {
-                    existingStyle.innerHTML = `body, * { font-family: '${fontName}', sans-serif !important; }`;
+                    // 기호가 깨지지 않도록 Fallback 폰트 세트 체이닝 적용
+                    existingStyle.innerHTML = `
+                        body, * { 
+                            font-family: '${fontName}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                        }
+                    `;
                 } else {
                     existingStyle.innerHTML = '';
                 }
