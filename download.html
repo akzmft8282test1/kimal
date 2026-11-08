@@ -4,7 +4,7 @@
     <!-- 1. 서버에서 동적으로 제공하는 폰트 스타일 파일 로드 -->
     <link rel="stylesheet" href="/global-font.css">
 
-    <!-- 2. 모든 자식 요소에 폰트를 강제 적용하는 즉시 실행 스크립트 -->
+    <!-- 2. 모든 자식 요소에 폰트를 강제 적용하되, 기호는 깨지지 않도록 분리 적용하는 스크립트 -->
     <script>
         (function() {
             const savedFont = localStorage.getItem('selected_global_font');
@@ -12,7 +12,12 @@
                 const style = document.createElement('style');
                 style.innerHTML = `
                     body, * { 
-                        font-family: '${savedFont}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                        font-family: '${savedFont}', sans-serif !important; 
+                    }
+                    /* 화살표 및 특수 기호 클래스는 시스템 기호 폰트 우선 적용 */
+                    .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow, 
+                    .algo-content, span, td, th, p, h3 {
+                        font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', '${savedFont}', sans-serif !important;
                     }
                 `;
                 document.head.appendChild(style);
@@ -23,9 +28,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026학년도 1학기 정보 모의평가 인쇄/다운로드 센터</title>
     <style>
-        /* 💡 화살표 및 특수 기호 클래스 예외 처리 */
+        /* 💡 화살표 및 특수 기호 클래스 전용 예외 스타일 */
         .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Malgun Gothic', 'Segoe UI Symbol', sans-serif !important;
+            font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif !important;
         }
 
         :root {
@@ -220,7 +225,10 @@
             if (fontName) {
                 existingStyle.innerHTML = `
                     body, * { 
-                        font-family: '${fontName}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                        font-family: '${fontName}', sans-serif !important; 
+                    }
+                    .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
+                        font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', '${fontName}', sans-serif !important;
                     }
                 `;
             } else {
