@@ -52,69 +52,7 @@
     </style>
 </head>
 <body>
-<!-- 🎨 페이지 내 실시간 폰트 변경 위젯 -->
-<div id="quick-font-widget" style="background:#f1f5f9; border:1px solid #cbd5e1; padding:10px 15px; border-radius:8px; margin-bottom:20px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:0.9rem;">
-    <label for="quickFontSelect" style="font-weight:bold; color:#2c3e50;">🎛️ 실시간 폰트 설정:</label>
-    <select id="quickFontSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; font-size:0.9rem; flex:1; min-width:200px;">
-        <option value="">-- 기본 시스템 폰트 --</option>
-    </select>
-    <button type="button" id="quickSaveBtn" style="background:#3b82f6; color:white; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">저장</button>
-    <a href="/fonts" style="color:#64748b; font-size:0.85rem; text-decoration:underline; margin-left:auto;">전체 폰트 대시보드 ↗</a>
-</div>
 
-<!-- 폰트 적용 및 위젯 동작 스크립트 -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const quickSelect = document.getElementById('quickFontSelect');
-        const quickSaveBtn = document.getElementById('quickSaveBtn');
-
-        // 1. 서버에서 사용 가능한 폰트 목록 가져오기
-        fetch('/api/fonts-list')
-            .then(res => res.json())
-            .then(fonts => {
-                fonts.forEach(font => {
-                    const opt = document.createElement('option');
-                    opt.value = font.name;
-                    opt.textContent = font.name;
-                    quickSelect.appendChild(opt);
-                });
-
-                // 저장된 폰트가 있다면 셀렉트박스에 반영 및 강제 적용
-                const savedFont = localStorage.getItem('selected_global_font');
-                if (savedFont) {
-                    quickSelect.value = savedFont;
-                    applyGlobalFont(savedFont);
-                }
-            })
-            .catch(err => console.error("폰트 목록 로드 실패:", err));
-
-        // 2. 셀렉트박스 변경 시 실시간 적용 (저장 전 미리보기)
-        quickSelect.addEventListener('change', (e) => {
-            applyGlobalFont(e.target.value);
-        });
-
-        // 3. 저장 버튼 클릭 시 localStorage에 저장
-        quickSaveBtn.addEventListener('click', () => {
-            const selected = quickSelect.value;
-            localStorage.setItem('selected_global_font', selected);
-            alert(`폰트가 [${selected || '기본 시스템 폰트'}]로 설정 및 저장되었습니다!`);
-        });
-
-        function applyGlobalFont(fontName) {
-            let existingStyle = document.getElementById('dynamic-global-font-style');
-            if (!existingStyle) {
-                existingStyle = document.createElement('style');
-                existingStyle.id = 'dynamic-global-font-style';
-                document.head.appendChild(existingStyle);
-            }
-            if (fontName) {
-                existingStyle.innerHTML = `body, * { font-family: '${fontName}', sans-serif !important; }`;
-            } else {
-                existingStyle.innerHTML = '';
-            }
-        }
-    });
-</script>
 <div class="container">
     <h1>📝 2학기 1차 정기시험 실전 모의고사</h1>
     
