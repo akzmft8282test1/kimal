@@ -119,7 +119,7 @@
         <a href="/moui" class="btn" style="background:#3498db; color:white;">👈 모의고사 풀이 화면으로 가기</a>
     </div>
 
-    <div class="section-title">📦 ./downpdf 폴더 내 복습활동지 파일 목록 (자동 연동)</div>
+    <div class="section-title">📦 전체 학습지-폰트별</div>
     <div id="downpdf-container">
         <p style="color:#718096; text-align:center;">downpdf 폴더에서 파일 목록을 불러오는 중입니다...</p>
     </div>
@@ -153,27 +153,6 @@
         <div class="btn-wrap">
             <button class="btn btn-q" onclick="compileAndPrint('3', 'question')">문제지 다운로드</button>
             <button class="btn btn-a" onclick="compileAndPrint('3', 'answer')">정답지 다운로드</button>
-        </div>
-    </div>
-
-    <div class="section-title">Ⅱ. 교과 대단원 정기시험 대비 복습활동지 원본</div>
-    <div class="exam-row">
-        <div class="exam-info">
-            <h3>대단원 정보 복습활동지 (기본형)</h3>
-            <p>index.html 파일의 테이블 구조 및 CSS 스타일 완벽 보존</p>
-        </div>
-        <div class="btn-wrap">
-            <button class="btn btn-p" onclick="downloadActivityPDF('index')">고해상도 PDF 다운로드</button>
-        </div>
-    </div>
-
-    <div class="exam-row">
-        <div class="exam-info">
-            <h3>대단원 정보 복습활동지 (완성형)</h3>
-            <p>endex.html 파일의 모든 정답 마킹 처리 및 피드백 내용 포함</p>
-        </div>
-        <div class="btn-wrap">
-            <button class="btn btn-p" onclick="downloadActivityPDF('endex')">고해상도 PDF 다운로드</button>
         </div>
     </div>
 </div>
@@ -250,7 +229,7 @@
                         <div class="exam-row">
                             <div class="exam-info">
                                 <h3>📄 ${file.name}</h3>
-                                <p>서버 downpdf 디렉토리 직접 연동 파일</p>
+                                <p>폰트별 전체 학습지</p>
                             </div>
                             <div class="btn-wrap">
                                 <a href="${file.url}" class="btn btn-p" download>다운로드하기</a>
