@@ -32,6 +32,28 @@
             font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif !important;
         }
 
+        /* 💡 의사코드 대입 화살표(←) 순수 CSS 구현 스타일 */
+        .code-arrow {
+            display: inline-block;
+            width: 14px;
+            height: 2px;
+            background-color: currentColor;
+            position: relative;
+            vertical-align: middle;
+            margin: 0 4px;
+        }
+        .code-arrow::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -3px;
+            width: 5px;
+            height: 5px;
+            border-left: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+        }
+
         :root {
             --primary-color: #2c3e50;
             --accent-color: #3498db;
@@ -545,9 +567,9 @@
         <div class="algo-card pseudo">
             <div class="algo-card-header">의사 코드로 표현한 덧셈 알고리즘</div>
             <div class="algo-content">
-                a ← 10<br>
-                b ← 5<br>
-                sum ← a + b<br>
+                a <span class="code-arrow"></span> 10<br>
+                b <span class="code-arrow"></span> 5<br>
+                sum <span class="code-arrow"></span> a + b<br>
                 <strong>출력</strong> sum
             </div>
         </div>
