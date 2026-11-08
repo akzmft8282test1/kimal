@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- 1. 서버에서 동적으로 제공하는 폰트 스타일 파일 로드 -->
-<link rel="stylesheet" href="/global-font.css">
+    <!-- 1. 서버에서 제공하는 전역 폰트 @font-face 로드 -->
+    <link rel="stylesheet" href="/global-font.css">
+    
+    <!-- 2. 모든 동적 요소와 태그에 선택한 폰트를 강제 적용하는 스크립트 -->
+    <script>
+        (function() {
+            const savedFont = localStorage.getItem('selected_global_font');
+            if (savedFont) {
+                const style = document.createElement('style');
+                style.innerHTML = `body, * { font-family: '${savedFont}', sans-serif !important; }`;
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
 
-<!-- 2. 저장된 폰트를 페이지 로딩 시 자동으로 전체 적용하는 스크립트 -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const savedFont = localStorage.getItem('selected_global_font');
-        if (savedFont) {
-            document.body.style.fontFamily = `'${savedFont}', sans-serif`;
-        }
-    });
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2학기 1차 정기시험 대비 정보 실전 모의고사</title>
-    <link rel="stylesheet" href="/fonts"> <!-- 서버 전체 폰트 자동 적용 라우트 연동 -->
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -26,7 +28,7 @@
             --bg-color: #f5f7fa;
             --box-bg: #ffffff;
         }
-        body { font-family: 'CustomFont', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; line-height: 1.6; background-color: var(--bg-color); color: #333; margin: 0; padding: 10px; }
+        body { line-height: 1.6; background-color: var(--bg-color); color: #333; margin: 0; padding: 10px; }
         .container { max-width: 840px; margin: 0 auto; background: var(--box-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1 { text-align: center; color: var(--primary-color); font-size: 1.6rem; margin-bottom: 20px; }
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
@@ -120,8 +122,6 @@
             html += `<h2 style="color:var(--primary-color); border-bottom:2px solid #edf2f7; padding-bottom:5px;">I. 선택형 객관식 문항</h2>`;
             activeData.choice.forEach(q => {
                 const originalCorrectText = q.options[parseInt(q.answer) - 1];
-                
-                // 💡 새로고침할 때마다 매번 새롭게 무작위 셔플 실행
                 const shuffledOptions = shuffleArray(q.options);
                 const newAnswerIndex = shuffledOptions.findIndex(opt => opt === originalCorrectText) + 1;
 
