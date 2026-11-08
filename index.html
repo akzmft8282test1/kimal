@@ -4,7 +4,7 @@
     <!-- 1. 서버에서 동적으로 제공하는 폰트 스타일 파일 로드 -->
     <link rel="stylesheet" href="/global-font.css">
 
-    <!-- 2. 모든 자식 요소에 폰트를 강제 적용하는 즉시 실행 스크립트 -->
+    <!-- 2. 모든 자식 요소에 선택한 폰트를 강제 적용하는 즉시 실행 스크립트 -->
     <script>
         (function() {
             const savedFont = localStorage.getItem('selected_global_font');
@@ -12,7 +12,11 @@
                 const style = document.createElement('style');
                 style.innerHTML = `
                     body, * { 
-                        font-family: '${savedFont}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                        font-family: '${savedFont}', sans-serif !important; 
+                    }
+                    /* 화살표 및 특수 기호 클래스는 시스템 기호 폰트 우선 적용 */
+                    .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
+                        font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', '${savedFont}', sans-serif !important;
                     }
                 `;
                 document.head.appendChild(style);
@@ -23,10 +27,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026학년도 2학기 1차 정기시험 대비 정보 복습활동지</title>
     <style>
-        /* 💡 화살표 및 특수 기호가 포함된 요소는 시스템 기호 폰트를 강제하여 절대 깨지지 않도록 처리 */
-        .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow, 
-        .algo-content, .mini-flowchart, span.answer, td, th {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Malgun Gothic', 'Segoe UI Symbol', sans-serif !important;
+        /* 특수 아이콘 및 기호 클래스에 기본 기호 폰트 강제 적용 */
+        .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
+            font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif !important;
         }
 
         :root {
@@ -181,6 +184,7 @@
         .algo-card.flowchart .algo-card-header { background: #f3e8ff; color: #6b21a8; }
 
         .algo-content {
+            font-family: monospace, 'Courier New', sans-serif;
             font-size: 0.9rem;
             line-height: 1.5;
             background: #f8fafc;
@@ -443,7 +447,10 @@
                 if (fontName) {
                     existingStyle.innerHTML = `
                         body, * { 
-                            font-family: '${fontName}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                            font-family: '${fontName}', sans-serif !important; 
+                        }
+                        .e-start-play, .e-dropdown-arrow, .e-loop-icon, .e-help-icon, .flow-arrow {
+                            font-family: 'Segoe UI Symbol', 'Apple SD Gothic Neo', 'Malgun Gothic', '${fontName}', sans-serif !important;
                         }
                     `;
                 } else {
