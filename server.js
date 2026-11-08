@@ -27,16 +27,7 @@ app.get('/endex', (req, res) => res.sendFile(path.join(__dirname, 'endex.html'))
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/moui', (req, res) => res.sendFile(path.join(__dirname, 'moui.html')));
 app.get('/download', (req, res) => res.sendFile(path.join(__dirname, 'download.html')));
-
-// 🎛️ [/fonts 접속시 폰트 대시보드 GUI 페이지 반환]
-app.get('/fonts', (req, res) => {
-    const fontsHtmlPath = path.join(__dirname, 'fonts.html');
-    if (fs.existsSync(fontsHtmlPath)) {
-        res.sendFile(fontsHtmlPath);
-    } else {
-        res.status(404).send("fonts.html 대시보드 파일이 서버 루트 폴더에 존재하지 않습니다.");
-    }
-});
+app.get('/fonts', (req, res) => res.sendFile(path.join(__dirname, 'fonts.html')));
 
 // 📊 프론트엔드 데이터 싱크 API
 app.get('/api/exam-data', (req, res) => {
@@ -44,10 +35,36 @@ app.get('/api/exam-data', (req, res) => {
 });
 
 // =======================================================
+// 📁 [추가] ./downpdf 폴더 내 복습활동지 PDF 목록 API
+// =======================================================
+app.get('/api/downpdf-list', (req, res) => {
+    const downpdfDir = path.join(__dirname, 'downpdf');
+    let pdfList = [];
+    try {
+        if (fs.existsSync(downpdfDir)) {
+            const files = fs.readdirSync(downpdfDir);
+            files.forEach(file => {
+                if (path.extname(file).toLowerCase() === '.pdf') {
+                    pdfList.push({
+                        name: file,
+                        url: `/downpdf/${encodeURIComponent(file)}`
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        console.error("downpdf 폴더 읽기 오류:", e);
+    }
+    res.json(pdfList);
+});
+
+// downpdf 폴더 정적 서빙
+app.use('/downpdf', express.static(path.join(__dirname, 'downpdf')));
+
+// =======================================================
 // 🎨 [확실하게 작동하는 폰트 스캔 API]
 // =======================================================
 app.get('/api/fonts-list', (req, res) => {
-    console.log("📥 /api/fonts-list API 호출됨");
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
     let fontsList = [];
 
@@ -74,7 +91,6 @@ app.get('/api/fonts-list', (req, res) => {
                 }
             });
         }
-        console.log(`✨ 폰트 스캔 완료: ${fontsList.length}개 발견`);
     } catch (e) {
         console.error("❌ 폰트 스캔 에러:", e);
     }
@@ -83,7 +99,7 @@ app.get('/api/fonts-list', (req, res) => {
     return res.status(200).json(fontsList);
 });
 
-// 🎨 [추가] 모든 페이지에서 공통으로 로드하여 전역 폰트를 적용할 수 있는 CSS 라우트
+// 전역 폰트 CSS 라우트
 app.get('/global-font.css', (req, res) => {
     res.setHeader('Content-Type', 'text/css; charset=utf-8');
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
@@ -110,24 +126,17 @@ app.get('/global-font.css', (req, res) => {
                 `;
             }
         });
-    } catch (err) {
-        console.error("전역 폰트 CSS 생성 오류:", err);
-    }
+    } catch (err) {}
 
     res.send(css);
 });
 
-// 💡 개별 폰트 파일 서빙 라우트
 app.get('/font-file/:fileName', (req, res) => {
     try {
         const fileName = decodeURIComponent(req.params.fileName);
         const targetPath = path.join(__dirname, fileName);
-        
         if (fs.existsSync(targetPath)) {
-            const ext = path.extname(fileName).toLowerCase();
-            if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
-                return res.sendFile(targetPath);
-            }
+            return res.sendFile(targetPath);
         }
         res.status(404).send("폰트 파일을 찾을 수 없습니다.");
     } catch (err) {
@@ -135,32 +144,18 @@ app.get('/font-file/:fileName', (req, res) => {
     }
 });
 
-// =======================================================
-// 🖨 [활동지 PDF 다운로드 라우터]
-// =======================================================
+// 활동지 PDF 다운로드 라우터
 app.get('/download/activity/:target', (req, res) => {
     const target = req.params.target;
-    let targetFileName = '';
-
-    if (target === 'index') {
-        targetFileName = 'index.html';
-    } else if (target === 'endex') {
-        targetFileName = 'endex.html';
-    } else {
-        return res.status(400).send("잘못된 요청입니다.");
-    }
-
+    let targetFileName = (target === 'index') ? 'index.html' : 'endex.html';
     const filePath = path.join(__dirname, targetFileName);
 
     if (fs.existsSync(filePath)) {
         return res.sendFile(filePath);
     } else {
         const publicPath = path.join(__dirname, 'public', targetFileName);
-        if (fs.existsSync(publicPath)) {
-            return res.sendFile(publicPath);
-        } else {
-            return res.status(404).send(`해당 활동지 파일(${targetFileName})을 서버에서 찾을 수 없습니다.`);
-        }
+        if (fs.existsSync(publicPath)) return res.sendFile(publicPath);
+        return res.status(404).send("파일 없음");
     }
 });
 
