@@ -6,15 +6,20 @@
     
     <!-- 2. 모든 동적 요소와 태그에 선택한 폰트를 강제 적용하는 스크립트 -->
     <script>
-        (function() {
-            const savedFont = localStorage.getItem('selected_global_font');
-            if (savedFont) {
-                const style = document.createElement('style');
-                style.innerHTML = `body, * { font-family: '${savedFont}', sans-serif !important; }`;
-                document.head.appendChild(style);
-            }
-        })();
-    </script>
+    (function() {
+        const savedFont = localStorage.getItem('selected_global_font');
+        if (savedFont) {
+            const style = document.createElement('style');
+            // 선택한 폰트 뒤에 Apple Color Emoji, Segoe UI Symbol, 맑은 고딕, sans-serif 등을 순차적으로 배치하여 기호 누락 방지
+            style.innerHTML = `
+                body, * { 
+                    font-family: '${savedFont}', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Sans KR', 'Malgun Gothic', sans-serif !important; 
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    })();
+</script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
