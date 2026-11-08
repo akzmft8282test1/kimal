@@ -99,11 +99,20 @@ app.get('/api/fonts-list', (req, res) => {
     return res.status(200).json(fontsList);
 });
 
-// 전역 폰트 CSS 라우트
+// 전역 폰트 CSS 라우트 (ArrowFallback 화살표/특수문자 우회 적용 포함)
 app.get('/global-font.css', (req, res) => {
     res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    
+    // 💡 1. 화살표 유니코드 영역(U+2190-21FF) 전용 ArrowFallback 규칙 맨 상단 배치
+    let css = `
+@font-face {
+    font-family: 'ArrowFallback';
+    src: local('Malgun Gothic'), local('Apple SD Gothic Neo'), local('Arial');
+    unicode-range: U+2190-21FF;
+}
+    `.trim() + '\n';
+
     const fontExtensions = ['.ttf', '.otf', '.woff', '.woff2'];
-    let css = '';
 
     try {
         const files = fs.readdirSync(__dirname);
